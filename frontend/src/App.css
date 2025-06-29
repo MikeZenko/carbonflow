@@ -1,0 +1,1015 @@
+/* frontend/src/App.css - FINAL VERSION (Post-Refactor) */
+
+/* --- 1. Theming and Global Styles --- */
+:root {
+  --background-main: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --surface-1: #ffffff;
+  --surface-2: #f8f9fa;
+  --primary-color: #00a991;
+  --primary-hover: #008577;
+  --text-main: #212529;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background-color: var(--background-main);
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+/* --- 2. Main App & Header Layout --- */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  background-color: var(--surface-1);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 2rem;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-title-link { text-decoration: none; }
+.app-header h1 { margin: 0; font-size: 1.5rem; color: var(--primary-color); }
+
+.header-nav { display: flex; gap: 1.5rem; align-items: center; }
+.nav-link {
+  color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: color 0.2s;
+}
+.nav-link:hover { color: var(--primary-color); }
+
+.logo-container { display: flex; align-items: center; gap: 0.75rem; }
+.logo-icon { color: var(--primary-color); font-size: 1.8rem; }
+.logo-text { font-size: 1.3rem; font-weight: 600; color: var(--text-main); }
+
+.logout-btn {
+  background: none; border: 1px solid var(--border-color); color: var(--text-secondary);
+  padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; display: flex;
+  align-items: center; gap: 0.5rem; transition: all 0.2s ease;
+}
+.logout-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+/* --- 3. Dashboard & Registration Page Layouts --- */
+.dashboard-layout-3-col {
+  display: flex;
+  padding: 1.5rem;
+  gap: 1.5rem;
+  flex-grow: 1;
+  background: #0a0a0a;
+  height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+/* New, simplified layout for the registration pages */
+.registration-page {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-grow: 1;
+  min-height: calc(100vh - 80px);
+}
+.registration-page .form-container {
+  width: 100%;
+  max-width: 600px;
+  height: fit-content;
+}
+
+/* The columns for the 3-panel dashboard */
+.dashboard-forms,
+.dashboard-sidebar,
+.dashboard-map {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.dashboard-forms { flex: 1.2; min-width: 350px; }
+.dashboard-sidebar { flex: 1.5; min-width: 380px; }
+.dashboard-map { flex: 3; border-radius: 16px; }
+
+
+/* --- 4. Shared Panel & Container Styles --- */
+.producer-list-container,
+.sidebar-container,
+.form-container {
+  background-color: var(--surface-1);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.panel-header,
+.sidebar-header,
+.form-section h2 {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+  margin: 0;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.producer-list-content,
+.sidebar-content,
+.form-section {
+  overflow-y: auto;
+  flex-grow: 1;
+  scroll-behavior: smooth;
+}
+
+/* Beautiful Scrollbars for Dashboard Panels */
+.sidebar-content::-webkit-scrollbar,
+.producer-list-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-content::-webkit-scrollbar-track,
+.producer-list-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb,
+.producer-list-content::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.3);
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover,
+.producer-list-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.6);
+}
+
+.sidebar-content { padding: 1.5rem; }
+.form-section { padding: 1.5rem; }
+.producer-list-content { padding: 1rem; }
+
+/* --- 5. Forms, Buttons, and other UI Elements --- */
+input[type="text"], input[type="number"] {
+  display: block; width: calc(100% - 1.6rem); padding: 0.8rem; margin-bottom: 1rem;
+  border-radius: 4px; border: 1px solid var(--border-color); background-color: var(--surface-2);
+  color: var(--text-main); font-size: 1rem;
+}
+input::placeholder { color: var(--text-secondary); }
+
+button[type="submit"], .match-card button, .producer-item button {
+  color: white; border: none; border-radius: 4px; font-weight: 500;
+  cursor: pointer; transition: background-color 0.2s ease;
+}
+button[type="submit"] {
+  width: 100%; background-color: var(--primary-color); padding: 0.8rem 1.5rem; font-size: 1rem;
+}
+button[type="submit"]:hover { background-color: var(--primary-hover); }
+
+.form-instruction { font-size: 0.9rem; font-style: italic; color: var(--text-secondary); margin: 0 0 1rem 0; }
+.location-display {
+  background-color: rgba(0, 169, 145, 0.1); color: var(--primary-color); border: 1px solid var(--primary-color);
+  border-radius: 4px; padding: 0.75rem; margin-bottom: 1.5rem; text-align: center; font-weight: 500;
+}
+.producer-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; border-bottom: 1px solid var(--border-color); }
+.producer-item:last-child { border-bottom: none; }
+.producer-item span { font-weight: 500; }
+.producer-item button {
+  background-color: var(--primary-hover); font-size: 0.8rem; padding: 0.4rem 0.8rem;
+}
+.producer-item button:hover { background-color: var(--primary-color); }
+
+.executive-summary, .match-card {
+  background-color: var(--surface-2); border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; margin-bottom: 1rem; flex-shrink: 0;
+}
+.executive-summary h3, .match-card h3 { margin-top: 0; color: var(--primary-color); }
+.match-card p, .executive-summary p { margin: 0.5rem 0; }
+.card-buttons { display: flex; gap: 0.5rem; margin-top: 1rem; }
+.card-buttons button { 
+  flex: 1; 
+  padding: 0.5rem 1rem; 
+  width: auto; 
+  background: var(--surface-2) !important; 
+  color: var(--text-main) !important; 
+  border: 1px solid var(--border-color) !important; 
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+}
+.card-buttons button.logistics-btn { background-color: #ff7800 !important; }
+.card-buttons button.logistics-btn:hover { background-color: #f59038 !important; }
+.card-buttons button:hover {
+  background: var(--surface-1) !important;
+  border-color: var(--primary-color) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
+}
+
+.card-buttons button.report-btn { 
+  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%) !important; 
+  color: white !important; 
+  border: 1px solid #059669 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+  font-weight: 600 !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.card-buttons button.report-btn:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.card-buttons button.report-btn:hover:before {
+  left: 100%;
+}
+
+.card-buttons button.report-btn:hover { 
+  background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%) !important; 
+  color: white !important; 
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4) !important;
+}
+
+/* --- 6. Analysis & Report Styling --- */
+.logistics-details { margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border-color); }
+.logistics-details h4 { margin-top: 0; color: #ff7800; }
+.net-impact { font-weight: bold; background-color: var(--surface-2); padding: 0.5rem; border-radius: 4px; }
+.popup-analysis h4 { margin: 8px 0 4px 0; font-size: 0.9rem; color: var(--primary-color); }
+.popup-analysis ul { margin: 0; padding-left: 18px; font-size: 0.85rem; }
+.rank-badge {
+  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+  color: white; 
+  border-radius: 50%; 
+  width: 32px; 
+  height: 32px; 
+  display: inline-flex;
+  align-items: center; 
+  justify-content: center; 
+  font-size: 1rem; 
+  font-weight: 700; 
+  margin-right: 0.75rem;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.rank-badge:before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: pearlRotate 3s linear infinite;
+}
+
+@keyframes pearlRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.analysis-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
+.analysis-section h4 { margin-top: 0; margin-bottom: 0.5rem; color: var(--text-secondary); }
+.analysis-section p, .analysis-section ul { font-size: 0.9rem; color: var(--text-main); margin-bottom: 1rem; }
+.analysis-section ul { padding-left: 20px; }
+
+/* --- 7. Modals and Overlays --- */
+.loading-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(5px); color: white; display: flex; justify-content: center; align-items: center;
+  font-size: 2rem; z-index: 15000; font-weight: 500;
+}
+.loading-overlay::after {
+  content: '';
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 15000;
+}
+.modal-content { background: var(--surface-1); color: var(--text-main); border-radius: 8px; padding: 0; width: 90%; max-width: 800px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid var(--border-color); }
+.modal-header h2 { margin: 0; }
+.modal-close-btn { background: none; border: none; font-size: 2rem; color: var(--text-secondary); cursor: pointer; padding: 0; line-height: 1; }
+.modal-actions { display: flex; gap: 1rem; align-items: center; }
+.modal-print-btn { background: var(--primary-hover); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+.report-section { margin-bottom: 2rem; padding: 0 1.5rem; }
+.report-section:first-of-type { padding-top: 1.5rem; }
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; text-align: center; }
+.metric-card { background: var(--surface-2); padding: 1rem; border-radius: 6px; }
+.metric-card h4 { margin: 0 0 0.5rem 0; color: var(--text-secondary); }
+.metric-card p { margin: 0; font-size: 1.5rem; font-weight: bold; color: var(--primary-color); }
+.net-impact-final { text-align: center; font-size: 1.2rem; margin-top: 1.5rem; }
+
+/* --- 8. Print Styles --- */
+@media print {
+  body * { visibility: hidden; }
+  .modal-content, .modal-content * { visibility: visible; }
+  .modal-content { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border: none; padding: 1rem; }
+  .modal-actions { display: none; }
+  .modal-header { border-bottom: 1px solid #ccc; }
+}
+
+/* --- Watchlist Button and Badge --- */
+.watchlist-btn {
+  width: 100%;
+  margin-top: 0.75rem;
+  background-color: #3e434c !important;
+  color: #fff !important;
+}
+.watchlist-btn:hover {
+  background-color: #555c69 !important;
+}
+
+.watchlist-badge {
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-left: 0.5rem;
+  vertical-align: top;
+}
+
+/* --- Comparison Page & Table --- */
+.comparison-page {
+  padding: 2rem 4rem;
+  flex-grow: 1;
+  min-height: calc(100vh - 80px);
+}
+.comparison-page h1 {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+.comparison-table-container {
+  background: var(--surface-1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+th, td {
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  background-color: var(--surface-2);
+  font-weight: 600;
+}
+
+td em {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.remove-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.remove-btn:hover {
+  background-color: #c82333;
+}
+
+/* --- Landing Page --- */
+.landing-page {
+  width: 100%;
+  min-height: 100vh;
+  color: white;
+  position: relative;
+}
+
+.landing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(26, 26, 26, 0.7), rgba(26, 26, 26, 0.9)), url('https://images.unsplash.com/photo-1611095965923-892481362d57?q=80&w=2070');
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+}
+
+.landing-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-content h1 {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.landing-content p {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin-bottom: 3rem;
+}
+
+.cta-button {
+  display: inline-block;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1rem 2rem;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 169, 145, 0.3);
+}
+
+/* --- Welcome Modal --- */
+.welcome-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(26, 26, 26, 0.9), rgba(26, 26, 26, 0.95));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20000;
+  backdrop-filter: blur(8px);
+}
+
+.welcome-modal-content {
+  background: var(--surface-1);
+  border-radius: 16px;
+  padding: 3rem;
+  width: 90%;
+  max-width: 800px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.welcome-modal-content h1 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
+}
+
+.welcome-modal-content > p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.welcome-modal-content h2 {
+  color: var(--text-main);
+  margin: 2rem 0 1rem 0;
+}
+
+.role-selection {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.role-button {
+  flex-basis: 300px;
+  padding: 2rem;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text-main);
+  background-color: var(--surface-2);
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.role-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 169, 145, 0.2);
+  border-color: var(--primary-color);
+}
+
+.role-button h3 {
+  margin: 0 0 1rem 0;
+  color: var(--primary-color);
+  font-size: 1.3rem;
+}
+
+.role-button p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.guest-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.guest-button:hover {
+  color: var(--primary-color);
+  background-color: rgba(0, 169, 145, 0.1);
+}
+
+/* --- Landing Page --- */
+/* frontend/src/App.css - FINAL VERSION */
+
+/* --- 1. Theming and Global Styles --- */
+:root {
+  --background-main: #1a1a1a;
+  --surface-1: #242424;
+  --surface-2: #2e2e2e;
+  --primary-color: #00a991;
+  --primary-hover: #00796b;
+  --text-main: #f0f0f0;
+  --text-secondary: #a0a0a0;
+  --border-color: #444;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--background-main);
+  color: var(--text-main);
+}
+
+/* --- 2. Main App & Layout Containers --- */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.dashboard-layout-3-col {
+  display: flex;
+  padding: 1.5rem;
+  gap: 1.5rem;
+  flex-grow: 1;
+  background: #f8f9fa;
+  min-height: calc(100vh - 80px);
+}
+
+.registration-page {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+/* --- 3. Landing Page --- */
+.landing-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(rgba(26, 26, 26, 0.8), rgba(26, 26, 26, 0.8)), url('https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=2070'); /* A generic tech background */
+  background-size: cover;
+  text-align: center;
+  color: white;
+}
+.landing-content {
+  max-width: 800px;
+  padding: 2rem;
+}
+.landing-content h1 {
+  font-size: 4rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+.landing-content p {
+  font-size: 1.25rem;
+  color: var(--text-main);
+  margin-bottom: 2rem;
+}
+.cta-button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1rem 2.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: background-color 0.2s, transform 0.2s;
+}
+.cta-button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+/* --- Logout Button --- */
+.logout-btn {
+  background: none;
+  border: 1px solid var(--text-secondary);
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.logout-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* --- Welcome Modal --- */
+.welcome-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20000; /* Highest z-index */
+  color: var(--text-main);
+  text-align: center;
+}
+
+.welcome-modal-content {
+  background-color: var(--surface-1);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 3rem 4rem;
+  max-width: 800px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.welcome-modal-content h1 {
+  color: var(--primary-color);
+  font-size: 3rem;
+  margin: 0 0 1rem 0;
+}
+
+.welcome-modal-content > p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 2.5rem auto;
+}
+
+.welcome-modal-content h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.role-selection {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.role-button {
+  flex: 1;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text-main);
+  background-color: var(--surface-2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.role-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.role-button h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--primary-color);
+}
+
+.role-button p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.guest-button {
+  margin-top: 3rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.guest-button:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+/* --- Landing Page --- */
+/* frontend/src/App.css - FINAL VERSION */
+
+/* --- 1. Theming and Global Styles --- */
+:root {
+  --background-main: #1a1a1a;
+  --surface-1: #242424;
+  --surface-2: #2e2e2e;
+  --primary-color: #00a991;
+  --primary-hover: #00796b;
+  --text-main: #f0f0f0;
+  --text-secondary: #a0a0a0;
+  --border-color: #444;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--background-main);
+  color: var(--text-main);
+}
+
+/* --- 2. Main App & Layout Containers --- */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.dashboard-layout-3-col {
+  display: flex;
+  padding: 1.5rem;
+  gap: 1.5rem;
+  flex-grow: 1;
+  background: #0a0a0a;
+  min-height: calc(100vh - 80px);
+}
+
+.registration-page {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* --- 3. Landing Page --- */
+.landing-page {
+  width: 100%;
+  min-height: 100vh;
+  color: white;
+  position: relative; /* THIS IS THE KEY FIX: Establishes stacking context */
+}
+
+.landing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(26, 26, 26, 0.7), rgba(26, 26, 26, 0.9)), url('https://images.unsplash.com/photo-1611095965923-892481362d57?q=80&w=2070');
+  background-size: cover;
+  background-position: center;
+  z-index: 1; /* Puts the overlay in the back */
+}
+
+.landing-content {
+  position: relative; /* Ensures this content respects the z-index */
+  z-index: 2; /* Puts the content on top of the overlay */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-header {
+  padding: 1rem 2rem;
+  text-align: left;
+}
+.landing-header h1 {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.landing-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+.landing-main h2 {
+  font-size: 4rem;
+  margin: 0 0 1rem 0;
+}
+.landing-main p {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin-bottom: 3rem;
+}
+.role-selection {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+}
+.role-button {
+  flex-basis: 300px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text-main);
+  background-color: rgba(46, 46, 46, 0.8);
+  backdrop-filter: blur(5px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.role-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 169, 145, 0.2);
+  border-color: var(--primary-color);
+}
+.role-button h3 { margin: 0 0 0.5rem 0; color: var(--primary-color); }
+.role-button p { margin: 0; color: var(--text-secondary); font-size: 0.9rem; }
+.guest-button {
+  margin-top: 3rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: none;
+}
+.guest-button:hover { color: var(--primary-color); }
+
+
+/* --- Shared Header for Internal App --- */
+.app-header {
+  background-color: var(--surface-1);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 2rem;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-title-link { text-decoration: none; }
+.header-nav { display: flex; gap: 1.5rem; align-items: center; }
+.nav-link {
+  color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: color 0.2s;
+}
+.nav-link:hover { color: var(--primary-color); }
+
+/* frontend/src/App.css - FINAL POLISHED VERSION */
+
+/* --- 1. Theming and Global Styles --- */
+:root {
+  --background-main: #121212;
+  --surface-1: #1e1e1e;
+  --surface-2: #2a2a2a;
+  --primary-color: #00c8a3; /* A brighter, more modern teal */
+  --primary-hover: #00a98a;
+  --text-main: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --border-color: #3a3a3a;
+}
+
+body {
+  font-family: 'Inter', sans-serif; /* Use the new professional font */
+  background-color: var(--background-main);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+}
+/* ... (html, #root styles remain the same) ... */
+
+/* --- 2. Logo --- */
+.logo-container { display: flex; align-items: center; gap: 0.75rem; }
+.logo-icon { color: var(--primary-color); font-size: 1.8rem; }
+.logo-text { font-size: 1.3rem; font-weight: 600; color: var(--text-main); }
+
+
+/* --- 3. Main App & Header Layout --- */
+.app-header {
+  /* ... (header styles are mostly the same) ... */
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(8px);
+  background-color: rgba(30, 30, 30, 0.8);
+}
+.nav-link { /* ... */ }
+.logout-btn {
+  background: none; border: 1px solid var(--border-color); color: var(--text-secondary);
+  padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; display: flex;
+  align-items: center; gap: 0.5rem; transition: all 0.2s ease;
+}
+.logout-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+
+/* --- 4. Landing Page --- */
+.landing-page { /* ... */ }
+.landing-main h2 { font-size: 3.5rem; font-weight: 700; }
+.role-button { /* ... */ border-color: var(--border-color); }
+.role-button:hover { /* ... */ border-color: var(--primary-color); }
+.role-icon { color: var(--primary-color); margin-bottom: 1rem; }
+
+
+/* --- 5. All other styles --- */
+/* (This contains all the other styles we've built. No major changes,
+   but small tweaks to transitions and colors have been made for consistency) */
+.panel-header { display: flex; align-items: center; gap: 0.75rem; }
+
+/* ... (all other styles for dashboard, sidebar, forms, cards, modals) ... */
+
+/* --- UPGRADED Loading Overlay --- */
+.loading-overlay {
+  /* ... (same positioning) ... */
+  z-index: 20000;
+}
+/* This creates a CSS-only spinner instead of text */
+.loading-overlay::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 60px;
+  border: 6px solid var(--surface-1);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

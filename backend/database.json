@@ -1,0 +1,253 @@
+{
+  "users": [
+    {
+      "id": "user_1",
+      "email": "demo@carboncapture.com",
+      "password": "$2b$12$bd9vgNhiFZFawb8tNrzjJe989SZDmGRvmvKJfEKt/IdUpTn5yoWia",
+      "name": "Demo User",
+      "role": "admin",
+      "created_at": "2024-01-01T00:00:00.000000"
+    },
+    {
+      "id": "user_2",
+      "email": "narynovts@gmail.com",
+      "password": "$2b$12$wudheduJYHBlncBCyD1VRu1gt5VQ0ZTz5e0PeCX0rE8QkTb0sA6/K",
+      "name": "mike",
+      "role": "user",
+      "created_at": "2025-06-29T04:07:58.955451"
+    },
+    {
+      "id": "user_3",
+      "email": "nhjksdbfj@gmail.com",
+      "password": "$2b$12$UA1V7TBiKo5eUlN2kF051..dyl394DbMBG8Ayahg4FlaE3kPuGP7C",
+      "name": "Rajeed",
+      "role": "user",
+      "created_at": "2025-06-29T04:08:58.500758"
+    },
+    {
+      "id": "user_4",
+      "email": "sdlfiuhbk@gmail.com",
+      "password": "$2b$12$XIGnmp1VGbWcmptbPxe1iOWnWblCj95sXv6x311LxdDk/BLSWgNK6",
+      "name": "hjkblc",
+      "role": "user",
+      "created_at": "2025-06-29T15:50:22.353841"
+    }
+  ],
+  "producers": [
+    {
+      "id": "prod_001",
+      "name": "Cal-Portland Cement (Redding Plant)",
+      "location": {
+        "lat": 40.5865,
+        "lon": -122.3917
+      },
+      "co2_supply_tonnes_per_week": 500,
+      "co2_output_tonnes_per_year": 26000,
+      "industry_type": "Cement Manufacturing",
+      "co2_purity": 95,
+      "transportation_methods": [
+        "Truck",
+        "Pipeline"
+      ],
+      "additional_info": "High-grade CO\u2082 suitable for industrial applications"
+    },
+    {
+      "id": "prod_002",
+      "name": "Central Valley Ethanol",
+      "location": {
+        "lat": 36.33,
+        "lon": -119.64
+      },
+      "co2_supply_tonnes_per_week": 350,
+      "co2_output_tonnes_per_year": 18200,
+      "industry_type": "Ethanol Production",
+      "co2_purity": 99,
+      "transportation_methods": [
+        "Truck",
+        "Rail"
+      ],
+      "additional_info": "Food-grade CO\u2082 perfect for beverage industry"
+    },
+    {
+      "id": "prod_73b787d2-89eb-4465-b0c2-543ef7d490a1",
+      "name": "Texas Petro Solutions",
+      "location": {
+        "lat": 32.7767,
+        "lon": -96.797
+      },
+      "co2_supply_tonnes_per_week": 800,
+      "co2_output_tonnes_per_year": 41600,
+      "industry_type": "Petrochemical",
+      "co2_purity": 92,
+      "transportation_methods": [
+        "Pipeline",
+        "Tank Truck"
+      ],
+      "additional_info": "Large-scale industrial CO\u2082 with flexible logistics"
+    },
+    {
+      "id": "prod_39242437-f3e0-424a-a777-f35126ac56eb",
+      "name": "Orlando Small-Scale Ethanol",
+      "location": {
+        "lat": 28.5383,
+        "lon": -81.3792
+      },
+      "co2_supply_tonnes_per_week": 150,
+      "co2_output_tonnes_per_year": 7800,
+      "industry_type": "Ethanol Production",
+      "co2_purity": 98,
+      "transportation_methods": [
+        "Truck"
+      ],
+      "additional_info": "Small batches, perfect for local beverage companies"
+    },
+    {
+      "id": "prod_9ad8b4e6-3fb5-4054-91ad-ea7ee3af2b59",
+      "name": "Carlsbad Energy Center",
+      "location": {
+        "lat": 33.1581,
+        "lon": -117.3506
+      },
+      "co2_supply_tonnes_per_week": 950,
+      "co2_output_tonnes_per_year": 49400,
+      "industry_type": "Power Generation",
+      "co2_purity": 88,
+      "transportation_methods": [
+        "Pipeline",
+        "Ship"
+      ],
+      "additional_info": "Continuous supply from power generation operations"
+    },
+    {
+      "id": "prod_23336605-ac5a-4480-99cb-40ba39321c34",
+      "name": "CalPortland Mojave Cement",
+      "location": {
+        "lat": 35.0536,
+        "lon": -118.1722
+      },
+      "co2_supply_tonnes_per_week": 1500,
+      "co2_output_tonnes_per_year": 78000,
+      "industry_type": "Cement Manufacturing",
+      "co2_purity": 94,
+      "transportation_methods": [
+        "Truck",
+        "Rail",
+        "Pipeline"
+      ],
+      "additional_info": "Large cement facility with multiple transport options"
+    },
+    {
+      "id": "prod_b7852ae9-0647-487a-972d-96689f32044e",
+      "name": "Long Beach Refining Co.",
+      "location": {
+        "lat": 33.7701,
+        "lon": -118.1937
+      },
+      "co2_supply_tonnes_per_week": 2500,
+      "co2_output_tonnes_per_year": 130000,
+      "industry_type": "Petrochemical",
+      "co2_purity": 96,
+      "transportation_methods": [
+        "Pipeline",
+        "Ship",
+        "Tank Truck"
+      ],
+      "additional_info": "Premium grade CO\u2082 from major refinery operations"
+    },
+    {
+      "id": "prod_4ebd47fd-93cc-481a-aa9b-fc1b5e2d140a",
+      "name": "Avenida Carbon Co.",
+      "location": {
+        "lat": 33.0661495,
+        "lon": -117.2430927
+      },
+      "co2_supply_tonnes_per_week": 1200,
+      "co2_output_tonnes_per_year": 62400,
+      "industry_type": "Chemical",
+      "co2_purity": 97,
+      "transportation_methods": [
+        "Truck",
+        "Pipeline"
+      ],
+      "additional_info": "Specialized chemical-grade CO\u2082 with high purity"
+    },
+    {
+      "id": "prod_de12c84b-ccaa-4e14-85e6-33cf6c41d6c0",
+      "name": "High Bluff Energy",
+      "location": {
+        "lat": 32.9924065,
+        "lon": -117.2133009
+      },
+      "co2_supply_tonnes_per_week": 200,
+      "co2_output_tonnes_per_year": 10400,
+      "industry_type": "Power Generation",
+      "co2_purity": 91,
+      "transportation_methods": [
+        "Truck"
+      ],
+      "additional_info": "Consistent small-scale supply for local applications"
+    }
+  ],
+  "consumers": [
+    {
+      "id": "cons_001",
+      "name": "SoCal Concrete Inc.",
+      "industry": "Concrete Curing",
+      "location": {
+        "lat": 34.0522,
+        "lon": -118.2437
+      },
+      "co2_demand_tonnes_per_week": 200
+    },
+    {
+      "id": "cons_002",
+      "name": "Plenty Vertical Farms (Compton)",
+      "industry": "Vertical Farming",
+      "location": {
+        "lat": 33.8958,
+        "lon": -118.2201
+      },
+      "co2_demand_tonnes_per_week": 75
+    },
+    {
+      "id": "cons_003",
+      "name": "Pacific Biofuel Solutions",
+      "industry": "Biofuel Synthesis",
+      "location": {
+        "lat": 37.7749,
+        "lon": -122.4194
+      },
+      "co2_demand_tonnes_per_week": 400
+    },
+    {
+      "id": "cons_004",
+      "name": "Bay Area Beverages",
+      "industry": "Beverage Carbonation",
+      "location": {
+        "lat": 37.8044,
+        "lon": -122.2711
+      },
+      "co2_demand_tonnes_per_week": 50
+    },
+    {
+      "id": "cons_d22445ed-6882-45bb-9d66-c6e9c6ea5939",
+      "name": "Miami High-Demand Chemicals",
+      "industry": "Chemical Synthesis",
+      "location": {
+        "lat": 25.7617,
+        "lon": -80.1918
+      },
+      "co2_demand_tonnes_per_week": 1000
+    },
+    {
+      "id": "cons_c719797f-5b72-42ed-a2e6-c6330b152bf8",
+      "name": "test",
+      "industry": "test",
+      "location": {
+        "lat": 34.0315574,
+        "lon": 50.6735549
+      },
+      "co2_demand_tonnes_per_week": 222
+    }
+  ]
+}

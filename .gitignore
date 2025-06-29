@@ -1,0 +1,13 @@
+# Python / Flask
+/backend/venv/
+__pycache__/
+*.pyc
+
+# Node / React
+/frontend/node_modules/
+/frontend/dist/
+.env
+npm-debug.log
+
+# Common
+.DS_Store

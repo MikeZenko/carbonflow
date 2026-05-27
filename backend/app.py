@@ -11,20 +11,39 @@ import requests
 from geopy.geocoders import Nominatim
 from dotenv import load_dotenv
 from auth import (
-    create_user, find_user_by_email, check_password, 
-    generate_token, token_required
+    create_user,
+    find_user_by_email,
+    find_user_by_id,
+    check_password,
+    generate_token,
+    token_required,
+    sanitize_user,
+    update_user,
+    DEFAULT_PREFERENCES,
+    DEFAULT_SUSTAINABILITY_GOALS,
 )
+from vector_matching import build_matches, matching_stats
 
 # Load environment variables
 load_dotenv()
 
 # --- Azure OpenAI Configuration ---
-client = openai.AzureOpenAI(
-    azure_endpoint=os.getenv('AZURE_OPENAI_ENDPOINT', "https://VAF-OPEN-AI.openai.azure.com/"),
-    api_key=os.getenv('AZURE_OPENAI_API_KEY', "d6e3e6f6647346e187a10345841af98f"),
-    api_version="2024-03-01-preview"
-)
+_openai_client = None
 AZURE_OPENAI_DEPLOYMENT_NAME = os.getenv('AZURE_OPENAI_DEPLOYMENT_NAME', "VAF_OPEN_AI")
+
+
+def get_openai_client():
+    global _openai_client
+    if _openai_client is None:
+        api_key = os.getenv('AZURE_OPENAI_API_KEY')
+        if not api_key:
+            raise RuntimeError('AZURE_OPENAI_API_KEY is not configured')
+        _openai_client = openai.AzureOpenAI(
+            azure_endpoint=os.getenv('AZURE_OPENAI_ENDPOINT'),
+            api_key=api_key,
+            api_version="2024-03-01-preview",
+        )
+    return _openai_client
 
 # --- Flask App Initialization ---
 app = Flask(__name__)
@@ -124,15 +143,79 @@ def get_profile():
         user = find_user_by_email(request.current_user['email'])
         if not user:
             return jsonify({'message': 'User not found'}), 404
-        
-        # Return user without password
-        user_data = user.copy()
-        del user_data['password']
-        
-        return jsonify({'user': user_data}), 200
-    
+        return jsonify({'user': sanitize_user(user)}), 200
     except Exception as e:
         return jsonify({'message': 'Failed to get profile', 'error': str(e)}), 500
+
+
+@app.route('/api/profile', methods=['PUT'])
+@token_required
+def update_profile():
+    try:
+        user = find_user_by_id(request.current_user['user_id'])
+        if not user:
+            return jsonify({'message': 'User not found'}), 404
+        data = request.get_json() or {}
+        updates = {}
+        if data.get('name'):
+            updates['name'] = data['name']
+        if data.get('email'):
+            updates['email'] = data['email']
+        updated_user = update_user(user['id'], updates)
+        return jsonify({'message': 'Profile updated successfully', 'user': updated_user}), 200
+    except Exception as e:
+        return jsonify({'message': 'Failed to update profile', 'error': str(e)}), 500
+
+
+@app.route('/api/preferences', methods=['GET'])
+@token_required
+def get_preferences():
+    user = find_user_by_id(request.current_user['user_id'])
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    preferences = user.get('preferences') or DEFAULT_PREFERENCES
+    return jsonify({'preferences': preferences}), 200
+
+
+@app.route('/api/preferences', methods=['PUT'])
+@token_required
+def update_preferences():
+    user = find_user_by_id(request.current_user['user_id'])
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    data = request.get_json() or {}
+    preferences = {**DEFAULT_PREFERENCES, **user.get('preferences', {}), **data.get('preferences', data)}
+    update_user(user['id'], {'preferences': preferences})
+    return jsonify({'message': 'Preferences updated successfully', 'preferences': preferences}), 200
+
+
+@app.route('/api/sustainability-goals', methods=['GET'])
+@token_required
+def get_sustainability_goals():
+    user = find_user_by_id(request.current_user['user_id'])
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    goals = user.get('sustainability_goals') or DEFAULT_SUSTAINABILITY_GOALS
+    return jsonify({'goals': goals}), 200
+
+
+@app.route('/api/sustainability-goals', methods=['PUT'])
+@token_required
+def update_sustainability_goals():
+    user = find_user_by_id(request.current_user['user_id'])
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    data = request.get_json() or {}
+    goals = {**DEFAULT_SUSTAINABILITY_GOALS, **user.get('sustainability_goals', {}), **data.get('goals', data)}
+    update_user(user['id'], {'sustainability_goals': goals})
+    return jsonify({'message': 'Sustainability goals updated successfully', 'goals': goals}), 200
+
+
+@app.route('/api/matching-stats', methods=['GET'])
+def get_matching_stats():
+    db = load_db()
+    return jsonify(matching_stats(db['producers'], db['consumers'], haversine))
+
 
 @app.route('/')
 def index(): return "CarbonCapture API is running!"
@@ -168,15 +251,14 @@ def add_consumer():
 @app.route('/api/matches', methods=['GET'])
 def get_matches():
     producer_id = request.args.get('producer_id')
-    if not producer_id: return jsonify({"error": "producer_id parameter is required"}), 400
-    db = load_db(); producer = next((p for p in db['producers'] if p['id'] == producer_id), None)
-    if not producer: return jsonify({"error": "Producer not found"}), 404
-    producer_loc = producer['location']; matches = []
-    for consumer in db['consumers']:
-        consumer_loc = consumer['location']; distance = haversine(producer_loc['lat'], producer_loc['lon'], consumer_loc['lat'], consumer_loc['lon'])
-        if consumer['co2_demand_tonnes_per_week'] <= producer['co2_supply_tonnes_per_week']:
-            match_data = consumer.copy(); match_data['distance_km'] = round(distance, 2); matches.append(match_data)
-    sorted_matches = sorted(matches, key=lambda x: x['distance_km']); return jsonify(sorted_matches)
+    if not producer_id:
+        return jsonify({"error": "producer_id parameter is required"}), 400
+    db = load_db()
+    producer = next((p for p in db['producers'] if p['id'] == producer_id), None)
+    if not producer:
+        return jsonify({"error": "Producer not found"}), 404
+    matches = build_matches(producer, db['consumers'], haversine)
+    return jsonify(matches)
 
 # --- AI Analysis Endpoint (New, More Reliable Strategy) ---
 @app.route('/api/analyze-matches', methods=['POST'])
@@ -209,7 +291,7 @@ def analyze_matches():
             - "justification": A concise paragraph explaining why this is or is not a good partnership.
             - "strategic_considerations": An array of 2 short bullet-point style strings highlighting key decision factors.
             """
-            response = client.chat.completions.create(
+            response = get_openai_client().chat.completions.create(
                 model=AZURE_OPENAI_DEPLOYMENT_NAME,
                 messages=[
                     {"role": "system", "content": "You are an expert analyst providing data in a strict JSON format."},
@@ -271,4 +353,6 @@ def impact_model():
 
 # --- Run the App ---
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    port = int(os.getenv('PORT', 5001))
+    debug = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
+    app.run(debug=debug, host='0.0.0.0', port=port)

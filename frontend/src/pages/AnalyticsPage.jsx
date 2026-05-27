@@ -1,72 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { FiTrendingUp, FiActivity, FiBarChart, FiUsers, FiMap, FiCalendar } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiTrendingUp, FiActivity, FiBarChart, FiUsers, FiMap } from 'react-icons/fi';
 import { FaLeaf, FaIndustry, FaGlobeAmericas } from 'react-icons/fa';
+import { getMatchingStats } from '../api';
 
 function AnalyticsPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [timeRange, setTimeRange] = useState('7d');
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Mock analytics data
-  const analyticsData = {
-    overview: {
-      totalMatches: 2450,
-      carbonSaved: 94,
-      activeProducers: 156,
-      revenueGenerated: 45000,
-      trends: [
-        { month: 'Jan', matches: 180, carbon: 85 },
-        { month: 'Feb', matches: 220, carbon: 88 },
-        { month: 'Mar', matches: 195, carbon: 90 },
-        { month: 'Apr', matches: 265, carbon: 92 },
-        { month: 'May', matches: 240, carbon: 94 },
-        { month: 'Jun', matches: 285, carbon: 96 }
-      ]
-    },
-    matches: {
-      successRate: 78,
-      avgDistance: 45,
-      topIndustries: [
-        { name: 'Manufacturing', count: 450, percentage: 32 },
-        { name: 'Energy', count: 380, percentage: 27 },
-        { name: 'Agriculture', count: 290, percentage: 21 },
-        { name: 'Technology', count: 180, percentage: 13 },
-        { name: 'Other', count: 100, percentage: 7 }
-      ]
-    }
-  };
+  useEffect(() => {
+    localStorage.setItem('carbonflow_analytics_tab', activeTab);
+  }, [activeTab]);
 
-  const StatCard = ({ icon, title, value, change, color }) => (
+  useEffect(() => {
+    localStorage.setItem('carbonflow_analytics_timerange', timeRange);
+  }, [timeRange]);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const data = await getMatchingStats();
+        setStats(data);
+      } catch (err) {
+        setError(err.message || 'Error fetching analytics data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadStats();
+  }, [timeRange]);
+
+  const StatCard = ({ icon, title, value, color }) => (
     <div className="analytics-stat-card">
-      <div className="stat-icon" style={{ color }}>
-        {icon}
-      </div>
+      <div className="stat-icon" style={{ color }}>{icon}</div>
       <div className="stat-content">
         <h3>{title}</h3>
         <div className="stat-value">{value}</div>
-        {change && (
-          <div className={`stat-change ${change > 0 ? 'positive' : 'negative'}`}>
-            {change > 0 ? '↗' : '↘'} {Math.abs(change)}%
-          </div>
-        )}
       </div>
     </div>
   );
 
-  const ChartBar = ({ label, value, maxValue, color }) => (
-    <div className="chart-bar-container">
-      <div className="chart-bar-label">{label}</div>
-      <div className="chart-bar-track">
-        <div 
-          className="chart-bar-fill" 
-          style={{ 
-            width: `${(value / maxValue) * 100}%`, 
-            backgroundColor: color || 'var(--primary-color)' 
-          }}
-        />
-      </div>
-      <div className="chart-bar-value">{value}</div>
-    </div>
-  );
+  const weightEntries = stats?.weights
+    ? Object.entries(stats.weights).map(([key, value]) => ({
+        label: key.replace(/_/g, ' '),
+        value: Math.round(value * 100),
+      }))
+    : [];
 
   return (
     <div className="analytics-page">
@@ -75,10 +58,9 @@ function AnalyticsPage() {
           <FiActivity className="page-icon" />
           <h1>Analytics Dashboard</h1>
         </div>
-        
         <div className="analytics-controls">
-          <select 
-            value={timeRange} 
+          <select
+            value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
             className="time-range-select"
           >
@@ -91,129 +73,122 @@ function AnalyticsPage() {
       </div>
 
       <div className="analytics-tabs">
-        <button 
+        <button
           className={`analytics-tab ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
-          <FiBarChart />
-          Overview
+          <FiBarChart /> Overview
         </button>
-        <button 
+        <button
           className={`analytics-tab ${activeTab === 'matches' ? 'active' : ''}`}
           onClick={() => setActiveTab('matches')}
         >
-          <FiUsers />
-          Matches
+          <FiUsers /> Matches
         </button>
-        <button 
+        <button
+          className={`analytics-tab ${activeTab === 'vector' ? 'active' : ''}`}
+          onClick={() => setActiveTab('vector')}
+        >
+          <FiTrendingUp /> Vector Engine
+        </button>
+        <button
           className={`analytics-tab ${activeTab === 'geography' ? 'active' : ''}`}
           onClick={() => setActiveTab('geography')}
         >
-          <FiMap />
-          Geography
+          <FiMap /> Geography
         </button>
       </div>
 
       <div className="analytics-content">
-        {activeTab === 'overview' && (
+        {loading && <p>Loading analytics data...</p>}
+        {error && <p className="form-error">{error}</p>}
+
+        {!loading && !error && stats && activeTab === 'overview' && (
           <div className="overview-tab">
             <div className="stats-grid">
               <StatCard
                 icon={<FiUsers />}
-                title="Total Matches"
-                value="2,450"
-                change={12}
+                title="Total Producers"
+                value={stats.total_producers}
                 color="var(--primary-color)"
               />
               <StatCard
-                icon={<FaLeaf />}
-                title="Carbon Saved"
-                value="94%"
-                change={5}
-                color="#10b981"
-              />
-              <StatCard
                 icon={<FaIndustry />}
-                title="Active Producers"
-                value="156"
-                change={8}
+                title="Active Consumers"
+                value={stats.total_consumers}
                 color="#3b82f6"
               />
               <StatCard
+                icon={<FaLeaf />}
+                title="Avg Matches/Producer"
+                value={stats.avg_matches_per_producer}
+                color="#10b981"
+              />
+              <StatCard
                 icon={<FiTrendingUp />}
-                title="Revenue Generated"
-                value="$45,000"
-                change={15}
+                title="AI Matching Accuracy"
+                value="Enhanced"
                 color="#059669"
               />
             </div>
+            <p className="analytics-note">Enhanced AI matching algorithm is now live</p>
+          </div>
+        )}
 
-            <div className="chart-section">
-              <h3>Monthly Trends</h3>
-              <div className="trend-chart">
-                {analyticsData.overview.trends.map((item, index) => (
-                  <div key={index} className="trend-bar">
-                    <div className="trend-month">{item.month}</div>
-                    <div className="trend-bars">
-                      <div 
-                        className="trend-bar-matches" 
-                        style={{ height: `${(item.matches / 300) * 100}px` }}
-                        title={`${item.matches} matches`}
-                      />
-                      <div 
-                        className="trend-bar-carbon" 
-                        style={{ height: `${item.carbon}px` }}
-                        title={`${item.carbon}% carbon saved`}
+        {!loading && !error && stats && activeTab === 'matches' && (
+          <div className="matches-tab">
+            <div className="matches-stats">
+              <div className="match-success-rate">
+                <h3>Matching Algorithm</h3>
+                <p>Advanced vector similarity analysis with capacity, distance, and quality scoring.</p>
+              </div>
+            </div>
+            <div className="industry-breakdown">
+              <h3>Algorithm Weights</h3>
+              <div className="industry-chart">
+                {weightEntries.map((item, index) => (
+                  <div key={item.label} className="chart-bar-container">
+                    <div className="chart-bar-label">{item.label}</div>
+                    <div className="chart-bar-track">
+                      <div
+                        className="chart-bar-fill"
+                        style={{
+                          width: `${item.value}%`,
+                          backgroundColor: `hsl(${index * 60}, 70%, 50%)`,
+                        }}
                       />
                     </div>
+                    <div className="chart-bar-value">{item.value}%</div>
                   </div>
                 ))}
-              </div>
-              <div className="chart-legend">
-                <div className="legend-item">
-                  <div className="legend-color matches"></div>
-                  <span>Matches</span>
-                </div>
-                <div className="legend-item">
-                  <div className="legend-color carbon"></div>
-                  <span>Carbon Efficiency</span>
-                </div>
               </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'matches' && (
-          <div className="matches-tab">
-            <div className="matches-stats">
-              <div className="match-success-rate">
-                <h3>Match Success Rate</h3>
-                <div className="success-rate-circle">
-                  <div className="success-rate-value">{analyticsData.matches.successRate}%</div>
+        {!loading && !error && stats && activeTab === 'vector' && (
+          <div className="vector-architecture-section">
+            <h3>Vector Architecture</h3>
+            <p>Real-time vector processing and compatibility scoring across the marketplace.</p>
+            <div className="architecture-breakdown">
+              <div className="vector-type producer-vectors">
+                <h4>Producer Vectors</h4>
+                <div className="vector-count">
+                  {stats.vector_engine_stats?.producer_vectors ?? 0} vectors
                 </div>
+                <p>{stats.vector_engine_stats?.vector_dimensions?.producer ?? 32} dimensions</p>
               </div>
-              
-              <div className="avg-distance">
-                <h3>Average Distance</h3>
-                <div className="distance-value">{analyticsData.matches.avgDistance} km</div>
-                <p>Between producers and consumers</p>
-              </div>
-            </div>
-
-            <div className="industry-breakdown">
-              <h3>Top Industries</h3>
-              <div className="industry-chart">
-                {analyticsData.matches.topIndustries.map((industry, index) => (
-                  <ChartBar
-                    key={index}
-                    label={industry.name}
-                    value={industry.count}
-                    maxValue={500}
-                    color={`hsl(${index * 60}, 70%, 50%)`}
-                  />
-                ))}
+              <div className="vector-type consumer-vectors">
+                <h4>Consumer Vectors</h4>
+                <div className="vector-count">
+                  {stats.vector_engine_stats?.consumer_vectors ?? 0} vectors
+                </div>
+                <p>{stats.vector_engine_stats?.vector_dimensions?.consumer ?? 28} dimensions</p>
               </div>
             </div>
+            <p className="analytics-footer">
+              Generated by CarbonFlow Analytics • {new Date().toLocaleDateString()}
+            </p>
           </div>
         )}
 
@@ -222,21 +197,7 @@ function AnalyticsPage() {
             <div className="geo-placeholder">
               <FaGlobeAmericas className="geo-icon" />
               <h3>Geographic Analytics</h3>
-              <p>Interactive map showing distribution of producers and consumers across regions</p>
-              <div className="geo-stats">
-                <div className="geo-stat">
-                  <strong>North America</strong>
-                  <span>65% of matches</span>
-                </div>
-                <div className="geo-stat">
-                  <strong>Europe</strong>
-                  <span>25% of matches</span>
-                </div>
-                <div className="geo-stat">
-                  <strong>Asia Pacific</strong>
-                  <span>10% of matches</span>
-                </div>
-              </div>
+              <p>Producer and consumer coverage across North America.</p>
             </div>
           </div>
         )}
@@ -245,4 +206,4 @@ function AnalyticsPage() {
   );
 }
 
-export default AnalyticsPage; 
+export default AnalyticsPage;

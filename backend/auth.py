@@ -82,6 +82,52 @@ def find_user_by_email(email):
     users = load_users()
     return next((user for user in users if user['email'] == email), None)
 
+
+DEFAULT_PREFERENCES = {
+    "dashboard_layout": "default",
+    "email_frequency": "daily",
+    "language": "en",
+    "notifications": {
+        "email": True,
+        "marketing": False,
+        "matches": True,
+        "push": True,
+        "reports": True,
+    },
+    "theme": "dark",
+}
+
+DEFAULT_SUSTAINABILITY_GOALS = {
+    "carbon_reduction_target": 0,
+    "current_progress": 0,
+    "milestones": [],
+    "target_date": "",
+    "tracking_method": "manual",
+}
+
+
+def find_user_by_id(user_id):
+    users = load_users()
+    return next((user for user in users if user['id'] == user_id), None)
+
+
+def sanitize_user(user):
+    user_data = user.copy()
+    user_data.pop('password', None)
+    return user_data
+
+
+def update_user(user_id, updates):
+    users = load_users()
+    for index, user in enumerate(users):
+        if user['id'] != user_id:
+            continue
+        users[index] = {**user, **updates}
+        save_users(users)
+        return sanitize_user(users[index])
+    return None
+
+
 def create_user(email, password, name, role='user'):
     """Create a new user"""
     users = load_users()
@@ -97,7 +143,9 @@ def create_user(email, password, name, role='user'):
         'password': hash_password(password),
         'name': name,
         'role': role,
-        'created_at': datetime.utcnow().isoformat()
+        'created_at': datetime.utcnow().isoformat(),
+        'preferences': json.loads(json.dumps(DEFAULT_PREFERENCES)),
+        'sustainability_goals': json.loads(json.dumps(DEFAULT_SUSTAINABILITY_GOALS)),
     }
     
     users.append(new_user)

@@ -35,7 +35,7 @@ function Sidebar({ producer, report, onSelectMatch, onGenerateReport, onAddToWat
         {report.ranked_matches.map((match) => (
           <div key={match.id} className="match-card">
             <h3>
-              <span className="rank-badge">{match.analysis.rank}</span> {match.name}
+              <span className="rank-badge">{match.analysis?.rank ?? match.rank}</span> {match.name}
             </h3>
             <p><strong>Distance:</strong> {match.distance_km} km</p>
             

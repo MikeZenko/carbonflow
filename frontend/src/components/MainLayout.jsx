@@ -407,6 +407,21 @@ function MainLayout() {
         onLogin={handleLogin}
         onRegister={handleRegister}
       />
+
+      <ProfileSettingsModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        user={user}
+        onUpdated={(updatedUser) => setUser(updatedUser)}
+      />
+      <PreferencesModal
+        isOpen={showPreferencesModal}
+        onClose={() => setShowPreferencesModal(false)}
+      />
+      <SustainabilityGoalsModal
+        isOpen={showGoalsModal}
+        onClose={() => setShowGoalsModal(false)}
+      />
     </div>
   );
 }

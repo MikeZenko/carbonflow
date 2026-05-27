@@ -3737,3 +3737,12 @@ button {
     padding: 1rem;
   }
 }
+.form-success { color: #10b981; margin-bottom: 1rem; }
+.form-error { color: #ef4444; margin-bottom: 1rem; }
+.vector-scores { margin: 0.75rem 0; padding: 0.75rem; background: rgba(0, 200, 163, 0.08); border-radius: 8px; }
+.score-breakdown { display: grid; gap: 0.35rem; }
+.score-item { display: flex; justify-content: space-between; font-size: 0.9rem; }
+.vector-architecture-section { padding: 1rem 0; }
+.architecture-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+.vector-type { padding: 1rem; border: 1px solid rgba(0,200,163,0.2); border-radius: 12px; }
+.analytics-note, .analytics-footer { color: #94a3b8; margin-top: 1rem; }

@@ -3,7 +3,7 @@ import MapView from '../components/MapView';
 import MatchesPanel from '../components/Sidebar';
 import ProducerList from '../components/ProducerList';
 import ImpactModal from '../components/ImpactModal';
-import { getMatches, getAnalyzedMatches, getImpactReport } from '../api';
+import { getMatches, getImpactReport } from '../api';
 import {
   cacheReport, getCachedReport,
   cacheAnalysisReport, getCachedAnalysisReport,
@@ -65,23 +65,22 @@ function HomePage() {
     setIsLoading(true);
     setAnalysisReport(null);
     try {
-      const initial = await getMatches(producer.id);
-      if (!initial || initial.length === 0) {
-        setAnalysisReport({ ranked_matches: [], overall_summary: 'No viable matches in range.' });
-        return;
-      }
-      // AI analysis runs one Azure call per match, so cap it to the top
-      // candidates — keeps the wait reasonable for high-match producers.
-      const top = initial.slice(0, 6);
-      const report = await getAnalyzedMatches(producer, top);
+      // /api/matches already returns ranked matches with a full score
+      // breakdown in ~80ms. We surface that directly — no slow per-match
+      // LLM pass, which is also exactly the "no black box" pitch.
+      const matches = await getMatches(producer.id);
+      const report = {
+        ranked_matches: matches || [],
+        overall_summary: matches && matches.length
+          ? `${matches.length} viable partner${matches.length === 1 ? '' : 's'} for ${producer.name}, ranked by capacity fit, proximity, and CO₂ purity.`
+          : 'No viable matches in range.',
+      };
       cacheAnalysisReport(producer, report);
       localStorage.setItem('carbonflow_last_producer', JSON.stringify(producer));
       setAnalysisReport(report);
     } catch (e) {
       setError(e.message);
-      // Set a terminal report so the panel exits the loading state instead
-      // of spinning on "Scoring matches…" forever.
-      setAnalysisReport({ ranked_matches: [], overall_summary: `Couldn't score matches: ${e.message}` });
+      setAnalysisReport({ ranked_matches: [], overall_summary: `Couldn't load matches: ${e.message}` });
     } finally {
       setIsLoading(false);
     }
@@ -94,13 +93,13 @@ function HomePage() {
   const handleGenerateReport = async (m) => {
     if (!selectedProducer || !m) return;
     const cached = getCachedReport(selectedProducer, m);
-    if (cached) { setImpactReport({ data: cached, match: m }); return; }
+    if (cached) { setImpactReport(cached); return; }
 
     setIsLoading(true);
     try {
       const data = await getImpactReport(selectedProducer, m);
       cacheReport(selectedProducer, m, data);
-      setImpactReport({ data, match: m });
+      setImpactReport(data);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -134,12 +133,7 @@ function HomePage() {
       </div>
 
       {impactReport && (
-        <ImpactModal
-          report={impactReport.data}
-          match={impactReport.match}
-          producer={selectedProducer}
-          onClose={() => setImpactReport(null)}
-        />
+        <ImpactModal report={impactReport} onClose={() => setImpactReport(null)} />
       )}
 
       {error && (

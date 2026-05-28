@@ -42,15 +42,15 @@ function MatchesPanel({ producer, report, isLoading, onSelectMatch, onGenerateRe
           <div className="panel-empty">No viable matches in range.</div>
         )}
 
-        {matches.map((m) => {
+        {matches.map((m, i) => {
           const score = typeof m.match_score === 'number' ? m.match_score : null;
+          const rank = m.rank ?? i + 1;
+          const note = describe(m);
           return (
             <article key={m.id} className="match">
               <header className="match-top">
                 <div className="match-name">
-                  <span className={`rank ${m.analysis?.rank === 1 ? 'rank-1' : ''}`}>
-                    {m.analysis?.rank ?? '–'}
-                  </span>
+                  <span className={`rank ${rank === 1 ? 'rank-1' : ''}`}>{rank}</span>
                   <span>{m.name}</span>
                 </div>
                 {score !== null && (
@@ -79,9 +79,7 @@ function MatchesPanel({ producer, report, isLoading, onSelectMatch, onGenerateRe
                 )}
               </div>
 
-              {m.analysis?.justification && (
-                <p className="match-just">{m.analysis.justification}</p>
-              )}
+              {note && <p className="match-just">{note}</p>}
 
               <div className="match-actions">
                 <button className="btn btn-ghost btn-sm" onClick={() => onSelectMatch(m)}>Show on map</button>
@@ -94,6 +92,18 @@ function MatchesPanel({ producer, report, isLoading, onSelectMatch, onGenerateRe
       </div>
     </section>
   );
+}
+
+// Instant, deterministic one-liner from the score breakdown — replaces the
+// slow per-match LLM blurb.
+function describe(m) {
+  const bits = [];
+  if (m.capacity_fit >= 0.8) bits.push('strong capacity fit');
+  else if (m.capacity_fit >= 0.5) bits.push('good capacity fit');
+  if (m.distance_score >= 0.7) bits.push('close proximity');
+  else if (m.distance_km != null && m.distance_km <= 500) bits.push('within trucking range');
+  if (m.quality_match >= 1) bits.push('meets purity bar');
+  return bits.join(' · ');
 }
 
 function Bar({ label, value }) {

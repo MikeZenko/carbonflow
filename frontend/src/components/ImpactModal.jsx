@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-function ImpactModal({ report, match, producer, onClose }) {
+function ImpactModal({ report, onClose }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
@@ -62,14 +62,6 @@ function ImpactModal({ report, match, producer, onClose }) {
             <dd>{usd(report.financials.consumer_annual_savings)}</dd>
           </dl>
 
-          {match?.analysis?.strategic_considerations?.length > 0 && (
-            <>
-              <p className="eyebrow mb-4">Strategic considerations</p>
-              <ul style={{ paddingLeft: 'var(--s-5)', color: 'var(--text-2)', fontSize: 'var(--text-sm)', lineHeight: 1.7 }}>
-                {match.analysis.strategic_considerations.map((s, i) => <li key={i}>{s}</li>)}
-              </ul>
-            </>
-          )}
         </div>
       </aside>
     </>

@@ -63,7 +63,7 @@ function MapView({ selectedProducer, matches = [], mapFocus }) {
         {matches.map((m) => (
           <Marker key={m.id} position={[m.location.lat, m.location.lon]}>
             <Popup>
-              <strong>#{m.analysis?.rank ?? '–'} · {m.name}</strong>
+              <strong>#{m.rank ?? '–'} · {m.name}</strong>
               <div style={{ marginTop: 4, color: 'var(--text-2)' }}>
                 {m.industry} · {m.distance_km} km
               </div>

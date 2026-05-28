@@ -15,12 +15,11 @@ function readStored() {
 }
 
 // The inline script in index.html sets data-theme before paint, so prefer it.
+// Default to dark; light is an explicit, persisted opt-in.
 function readInitialTheme() {
   const attr = document.documentElement.getAttribute('data-theme');
   if (attr === 'dark' || attr === 'light') return attr;
-  const stored = readStored();
-  if (stored) return stored;
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return readStored() || 'dark';
 }
 
 function applyTheme(theme) {
@@ -40,17 +39,6 @@ export function ThemeProvider({ children }) {
       try { localStorage.setItem(STORAGE_KEY, next); } catch { /* storage unavailable */ }
       return next;
     });
-  }, []);
-
-  // Follow the OS preference until the user makes an explicit choice.
-  useEffect(() => {
-    const mq = window.matchMedia?.('(prefers-color-scheme: dark)');
-    if (!mq) return undefined;
-    const onChange = (e) => {
-      if (!readStored()) setTheme(e.matches ? 'dark' : 'light');
-    };
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
   }, []);
 
   return (

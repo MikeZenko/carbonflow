@@ -87,7 +87,63 @@
   /* Motion */
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --dur: 160ms;
+
+  color-scheme: light;
 }
+
+/* ---------- Dark theme ----------
+ * The same editorial/industrial system, inverted onto warm ink. Not a cold
+ * blue dark mode — toned charcoal that reads like a blueprint sheet at night.
+ * The lime accent brightens so it stays legible (and usable as text) on dark,
+ * which is the opposite of how --accent-ink darkens on the light surfaces. */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces — warm charcoal, layered */
+  --bg: #100f0c;
+  --surface: #1a1814;
+  --surface-2: #221f1a;
+  --surface-inverse: #f4f3ee;
+
+  /* Lines */
+  --border: #2c2a24;
+  --border-strong: #45413a;
+
+  /* Type — warm off-white, never pure white */
+  --text: #f2f0e8;
+  --text-2: #b9b5a8;
+  --text-3: #837f73;
+  --text-inverse: #100f0c;
+
+  /* Accent — lime brightens on dark so it reads as text and pops as fill */
+  --accent: #8fd416;
+  --accent-hover: #7ec00f;
+  --accent-ink: #abe34d;
+  --accent-quiet: #1f2a0e;
+
+  /* Signal — iron oxide, lifted for dark */
+  --accent-2: #cc8068;
+  --accent-2-quiet: #2f2018;
+
+  /* Status */
+  --positive: #74ab85;
+  --negative: #d98a8a;
+}
+
+/* The handful of rules that bake in literal colors instead of tokens. */
+:root[data-theme="dark"] .btn-primary:hover:not(:disabled) { background: #fff; }
+:root[data-theme="dark"] .btn-accent { color: #14140f; }
+:root[data-theme="dark"] .rank-1 { color: #14140f; }
+:root[data-theme="dark"] .app-header { background: rgba(16, 15, 12, 0.85); }
+:root[data-theme="dark"] .scrim { background: rgba(0, 0, 0, 0.6); }
+:root[data-theme="dark"] .segment button.is-active { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4); }
+:root[data-theme="dark"] .leaflet-popup-content-wrapper { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important; }
+:root[data-theme="dark"] .leaflet-control-attribution {
+  background: rgba(16, 15, 12, 0.85) !important;
+  color: var(--text-3);
+}
+:root[data-theme="dark"] .leaflet-control-attribution a { color: var(--text-2); }
 
 /* ---------- Reset ---------- */
 
@@ -454,6 +510,27 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
 }
 .nav-link:hover { color: var(--text); border: none; background: transparent; }
 .nav-link.is-active { color: var(--accent-ink); font-weight: 600; }
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  color: var(--text-2);
+  border: 1px solid transparent;
+  flex-shrink: 0;
+  transition: color var(--dur) var(--ease),
+              background var(--dur) var(--ease),
+              border-color var(--dur) var(--ease);
+}
+.theme-toggle:hover {
+  color: var(--text);
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+.theme-toggle svg { display: block; }
 
 .app-main { flex: 1; min-height: 0; }
 

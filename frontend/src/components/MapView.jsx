@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import { useTheme } from '../theme';
 
 function ChangeView({ focus }) {
   const map = useMap();
@@ -18,6 +19,8 @@ L.Icon.Default.mergeOptions({
 });
 
 function MapView({ selectedProducer, matches = [], mapFocus }) {
+  const { theme } = useTheme();
+  const tone = theme === 'dark' ? 'dark' : 'light';
   const mapCenter = [39.8283, -98.5795];
   const zoom = 4;
   const focusZoom = 9;
@@ -38,13 +41,15 @@ function MapView({ selectedProducer, matches = [], mapFocus }) {
       >
         <ChangeView focus={focus} />
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
+          key={`${tone}-base`}
+          url={`https://{s}.basemaps.cartocdn.com/${tone}_nolabels/{z}/{x}/{y}{r}.png`}
           attribution='&copy; OpenStreetMap, &copy; CARTO'
           subdomains="abcd"
           maxZoom={19}
         />
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png"
+          key={`${tone}-labels`}
+          url={`https://{s}.basemaps.cartocdn.com/${tone}_only_labels/{z}/{x}/{y}{r}.png`}
           subdomains="abcd"
           maxZoom={19}
         />

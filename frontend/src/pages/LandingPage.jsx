@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
 import LoginModal from '../components/LoginModal';
+import ThemeToggle from '../components/ThemeToggle';
 import Globe from '../components/Globe';
 import { authAPI } from '../utils/auth';
 import { getProducers, getConsumers } from '../api';
@@ -59,6 +60,7 @@ function LandingPage() {
             <a href="#roles" className="nav-link">For consumers</a>
           </nav>
           <div className="row">
+            <ThemeToggle />
             {user ? (
               <Link to="/dashboard" className="btn btn-ghost btn-sm">Open dashboard</Link>
             ) : (

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 import LoginModal from './LoginModal';
+import ThemeToggle from './ThemeToggle';
 import { authAPI } from '../utils/auth';
 
 function MainLayout() {
@@ -51,6 +52,7 @@ function MainLayout() {
             </NavLink>
           </nav>
           <div className="row">
+            <ThemeToggle />
             {user ? (
               <>
                 <span className="text-sm text-muted">{user.name}</span>

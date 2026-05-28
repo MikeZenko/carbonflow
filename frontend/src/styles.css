@@ -481,17 +481,6 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
   justify-content: flex-end;
   position: relative;
 }
-.hero-visual::before {
-  /* faint moss vignette behind the globe — keeps it grounded on the page */
-  content: "";
-  position: absolute;
-  inset: 8%;
-  border-radius: 50%;
-  background: radial-gradient(circle at center, var(--accent-quiet) 0%, transparent 60%);
-  pointer-events: none;
-  z-index: 0;
-}
-.hero-visual > * { position: relative; z-index: 1; }
 
 .ascii-globe {
   font-family: var(--font-mono);

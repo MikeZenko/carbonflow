@@ -70,12 +70,18 @@ function HomePage() {
         setAnalysisReport({ ranked_matches: [], overall_summary: 'No viable matches in range.' });
         return;
       }
-      const report = await getAnalyzedMatches(producer, initial);
+      // AI analysis runs one Azure call per match, so cap it to the top
+      // candidates — keeps the wait reasonable for high-match producers.
+      const top = initial.slice(0, 6);
+      const report = await getAnalyzedMatches(producer, top);
       cacheAnalysisReport(producer, report);
       localStorage.setItem('carbonflow_last_producer', JSON.stringify(producer));
       setAnalysisReport(report);
     } catch (e) {
       setError(e.message);
+      // Set a terminal report so the panel exits the loading state instead
+      // of spinning on "Scoring matches…" forever.
+      setAnalysisReport({ ranked_matches: [], overall_summary: `Couldn't score matches: ${e.message}` });
     } finally {
       setIsLoading(false);
     }

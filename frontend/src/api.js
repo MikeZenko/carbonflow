@@ -3,7 +3,10 @@
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'https://carbonflow-production.up.railway.app';
 
-const REQUEST_TIMEOUT_MS = 10000;
+const REQUEST_TIMEOUT_MS = 12000;
+// AI analysis calls Azure OpenAI once per match, so it's far slower than
+// the plain data endpoints. Give it a generous ceiling.
+const ANALYZE_TIMEOUT_MS = 90000;
 
 export const checkApiHealth = async () => {
   try {
@@ -15,9 +18,9 @@ export const checkApiHealth = async () => {
   }
 };
 
-const fetchWithTimeout = async (url, options = {}) => {
+const fetchWithTimeout = async (url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) => {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(url, { ...options, signal: controller.signal });
   } catch (error) {
@@ -84,11 +87,15 @@ export const getMatches = async (producerId) => {
 };
 
 export const getAnalyzedMatches = async (producer, matches) => {
-  const response = await fetchWithTimeout(`${API_BASE_URL}/api/analyze-matches`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ producer, matches }),
-  });
+  const response = await fetchWithTimeout(
+    `${API_BASE_URL}/api/analyze-matches`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ producer, matches }),
+    },
+    ANALYZE_TIMEOUT_MS
+  );
   return handleResponse(response, 'Failed to get AI analysis for matches');
 };
 

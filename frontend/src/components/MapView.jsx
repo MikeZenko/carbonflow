@@ -1,53 +1,15 @@
-// frontend/src/components/MapView.jsx
-
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
-import 'leaflet-geosearch/dist/geosearch.css';
 
-// --- HELPER COMPONENT #1: To change the map's view ---
 function ChangeView({ focus }) {
   const map = useMap();
   useEffect(() => {
-    if (focus) {
-      map.flyTo(focus.center, focus.zoom);
-    }
+    if (focus) map.flyTo(focus.center, focus.zoom);
   }, [focus, map]);
   return null;
 }
 
-// --- HELPER COMPONENT #2: To add the search bar ---
-const SearchField = ({ onLocationSelect }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    const provider = new OpenStreetMapProvider();
-    
-    const searchControl = new GeoSearchControl({
-      provider: provider,
-      style: 'bar',
-      showMarker: true,
-      showPopup: false,
-      autoClose: true,
-      retainZoomLevel: false,
-      animateZoom: true,
-      keepResult: true,
-    });
-
-    map.addControl(searchControl);
-
-    map.on('geosearch/showlocation', (result) => {
-      onLocationSelect(result.location);
-    });
-
-    return () => map.removeControl(searchControl);
-  }, [map, onLocationSelect]);
-
-  return null;
-};
-
-// --- Icon Fix ---
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
@@ -55,46 +17,55 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
 
-
-// --- Main MapView Component ---
-function MapView({ selectedProducer, matches = [], onLocationSelect, mapFocus }) {
+function MapView({ selectedProducer, matches = [], mapFocus }) {
   const mapCenter = [39.8283, -98.5795];
-  const zoomLevel = 4;
-  const focusZoomLevel = 9;
+  const zoom = 4;
+  const focusZoom = 9;
 
-  const producerFocus = selectedProducer ? { center: [selectedProducer.location.lat, selectedProducer.location.lon], zoom: focusZoomLevel } : null;
-  const currentFocus = mapFocus || producerFocus;
+  const producerFocus = selectedProducer
+    ? { center: [selectedProducer.location.lat, selectedProducer.location.lon], zoom: focusZoom }
+    : null;
+  const focus = mapFocus || producerFocus;
 
   return (
-    <div className="dashboard-map"> 
+    <div className="map-pane">
       <MapContainer
         center={mapCenter}
-        zoom={zoomLevel}
+        zoom={zoom}
         style={{ height: '100%', width: '100%' }}
-        worldCopyJump={true}
+        worldCopyJump
+        zoomControl={false}
       >
-        <ChangeView focus={currentFocus} />
+        <ChangeView focus={focus} />
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
+          attribution='&copy; OpenStreetMap, &copy; CARTO'
+          subdomains="abcd"
+          maxZoom={19}
+        />
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png"
+          subdomains="abcd"
+          maxZoom={19}
         />
 
-        {/* onLocationSelect is now optional */}
-        {onLocationSelect && <SearchField onLocationSelect={onLocationSelect} />}
-
-        {/* Conditionally render markers only if they exist */}
         {selectedProducer && (
           <Marker position={[selectedProducer.location.lat, selectedProducer.location.lon]}>
-            <Popup><strong>PRODUCER: {selectedProducer.name}</strong></Popup>
+            <Popup>
+              <strong>Producer · {selectedProducer.name}</strong>
+              <div style={{ marginTop: 4, color: 'var(--text-2)' }}>
+                {selectedProducer.co2_supply_tonnes_per_week} t/wk supply
+              </div>
+            </Popup>
           </Marker>
         )}
 
-        {matches.map((match) => (
-          <Marker key={match.id} position={[match.location.lat, match.location.lon]}>
+        {matches.map((m) => (
+          <Marker key={m.id} position={[m.location.lat, m.location.lon]}>
             <Popup>
-              <strong><span className="rank-badge">{match.analysis.rank}</span> {match.name}</strong>
-              <div className="popup-analysis">
-                <p><em>{match.analysis.justification}</em></p>
+              <strong>#{m.analysis?.rank ?? '–'} · {m.name}</strong>
+              <div style={{ marginTop: 4, color: 'var(--text-2)' }}>
+                {m.industry} · {m.distance_km} km
               </div>
             </Popup>
           </Marker>

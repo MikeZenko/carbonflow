@@ -1,0 +1,20 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "nixpacks",
+    "buildCommand": "pip install -r requirements.txt"
+  },
+  "deploy": {
+    "startCommand": "python app.py",
+    "healthcheckPath": "/",
+    "healthcheckTimeout": 300,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
+  },
+  "environment": {
+    "FLASK_DEBUG": "False",
+    "JWT_SECRET_KEY": "$JWT_SECRET_KEY",
+    "DATABASE_FILE": "database.json",
+    "VECTOR_CACHE_DIR": "./vectors"
+  }
+} 

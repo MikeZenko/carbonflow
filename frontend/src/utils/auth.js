@@ -1,39 +1,47 @@
-import { API_BASE_URL } from '../config';
-
+const API_BASE_URL = 'https://carbonflow-production.up.railway.app';
 const TOKEN_KEY = 'carbon_auth_token';
 const USER_KEY = 'carbon_user_data';
 
-async function authRequest(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, options);
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || 'Request failed');
-  }
-  return response.json();
-}
-
 export const authAPI = {
   async login(email, password) {
-    const data = await authRequest('/api/login', {
+    const response = await fetch(`${API_BASE_URL}/api/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
 
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Login failed');
+    }
+
+    const data = await response.json();
+    
+    // Store token and user data
     localStorage.setItem(TOKEN_KEY, data.token);
     localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+    
     return data;
   },
 
   async register(email, password, name) {
-    const data = await authRequest('/api/register', {
+    const response = await fetch(`${API_BASE_URL}/api/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, name }),
     });
 
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Registration failed');
+    }
+
+    const data = await response.json();
+    
+    // Store token and user data
     localStorage.setItem(TOKEN_KEY, data.token);
     localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+    
     return data;
   },
 
@@ -41,77 +49,22 @@ export const authAPI = {
     const token = localStorage.getItem(TOKEN_KEY);
     if (!token) throw new Error('No token found');
 
-    return authRequest('/api/profile', {
+    const response = await fetch(`${API_BASE_URL}/api/profile`, {
       headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       },
     });
-  },
 
-  async updateProfile(payload) {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) throw new Error('No token found');
-
-    const data = await authRequest('/api/profile', {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (data.user) {
-      localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+    if (!response.ok) {
+      if (response.status === 401) {
+        this.logout(); // Token expired, logout user
+      }
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to get profile');
     }
-    return data;
-  },
 
-  async getPreferences() {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) throw new Error('No token found');
-
-    return authRequest('/api/preferences', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  },
-
-  async updatePreferences(preferences) {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) throw new Error('No token found');
-
-    return authRequest('/api/preferences', {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ preferences }),
-    });
-  },
-
-  async getSustainabilityGoals() {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) throw new Error('No token found');
-
-    return authRequest('/api/sustainability-goals', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  },
-
-  async updateSustainabilityGoals(goals) {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) throw new Error('No token found');
-
-    return authRequest('/api/sustainability-goals', {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ goals }),
-    });
+    return response.json();
   },
 
   logout() {
@@ -131,17 +84,16 @@ export const authAPI = {
 
   isAuthenticated() {
     return !!this.getToken();
-  },
+  }
 };
 
+// Helper function to add auth headers to API calls
 export const getAuthHeaders = () => {
   const token = authAPI.getToken();
-  return token
-    ? {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      }
-    : {
-        'Content-Type': 'application/json',
-      };
-};
+  return token ? {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  } : {
+    'Content-Type': 'application/json'
+  };
+}; 

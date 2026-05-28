@@ -6,31 +6,7 @@
       "password": "$2b$12$bd9vgNhiFZFawb8tNrzjJe989SZDmGRvmvKJfEKt/IdUpTn5yoWia",
       "name": "Demo User",
       "role": "admin",
-      "created_at": "2024-01-01T00:00:00.000000"
-    },
-    {
-      "id": "user_2",
-      "email": "narynovts@gmail.com",
-      "password": "$2b$12$wudheduJYHBlncBCyD1VRu1gt5VQ0ZTz5e0PeCX0rE8QkTb0sA6/K",
-      "name": "mike",
-      "role": "user",
-      "created_at": "2025-06-29T04:07:58.955451"
-    },
-    {
-      "id": "user_3",
-      "email": "nhjksdbfj@gmail.com",
-      "password": "$2b$12$UA1V7TBiKo5eUlN2kF051..dyl394DbMBG8Ayahg4FlaE3kPuGP7C",
-      "name": "Rajeed",
-      "role": "user",
-      "created_at": "2025-06-29T04:08:58.500758"
-    },
-    {
-      "id": "user_4",
-      "email": "sdlfiuhbk@gmail.com",
-      "password": "$2b$12$XIGnmp1VGbWcmptbPxe1iOWnWblCj95sXv6x311LxdDk/BLSWgNK6",
-      "name": "hjkblc",
-      "role": "user",
-      "created_at": "2025-06-29T15:50:22.353841"
+      "created_at": "2025-01-01T00:00:00.000000"
     }
   ],
   "producers": [
@@ -238,16 +214,6 @@
         "lon": -80.1918
       },
       "co2_demand_tonnes_per_week": 1000
-    },
-    {
-      "id": "cons_c719797f-5b72-42ed-a2e6-c6330b152bf8",
-      "name": "test",
-      "industry": "test",
-      "location": {
-        "lat": 34.0315574,
-        "lon": 50.6735549
-      },
-      "co2_demand_tonnes_per_week": 222
     }
   ]
 }

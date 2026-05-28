@@ -1,63 +1,81 @@
-// frontend/src/pages/RegisterConsumerPage.jsx
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addConsumer, geocodeAddress } from '../api';
 
+const INDUSTRIES = [
+  'Beverage Carbonation',
+  'Concrete Curing',
+  'Vertical Farming',
+  'Biofuel Synthesis',
+  'Chemical Synthesis',
+  'Food Processing',
+  'Manufacturing',
+  'Other',
+];
+
 function RegisterConsumerPage() {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  const [form, setForm] = useState({ name: '', industry: INDUSTRIES[0], address: '', demand: '' });
 
-  const [consumerName, setConsumerName] = useState('');
-  const [consumerIndustry, setConsumerIndustry] = useState('');
-  const [consumerDemand, setConsumerDemand] = useState('');
-  const [address, setAddress] = useState('');
+  const update = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (!address || !consumerName || !consumerIndustry || !consumerDemand) {
-        alert("Please fill out all fields.");
-        return;
-    }
-    setIsLoading(true);
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true); setError(null);
     try {
-      const location = await geocodeAddress(address);
-      const consumerData = {
-        name: consumerName,
-        industry: consumerIndustry,
-        location: { lat: location.lat, lon: location.lon },
-        co2_demand_tonnes_per_week: parseInt(consumerDemand, 10),
-      };
-      await addConsumer(consumerData);
-
-      alert(`Successfully registered consumer: ${consumerName}`);
-      navigate('/');
-    } catch (error) {
-      alert(error.message);
+      const loc = await geocodeAddress(form.address);
+      await addConsumer({
+        name: form.name,
+        industry: form.industry,
+        location: { lat: loc.lat, lon: loc.lon },
+        co2_demand_tonnes_per_week: parseInt(form.demand, 10),
+      });
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message);
     } finally {
-        setIsLoading(false);
+      setBusy(false);
     }
   };
 
   return (
-    <main className="registration-page">
-      {isLoading && <div className="loading-overlay">Registering...</div>}
-      <div className="form-container">
-        <div className="form-section">
-          <h2>Register a CO₂ Consumer</h2>
-          <p className="form-instruction">
-            Enter your company's full address. Our system will automatically find its location upon registration.
-          </p>
-          <form onSubmit={handleSubmit}>
-            <input type="text" placeholder="Enter Consumer Name" value={consumerName} onChange={(e) => setConsumerName(e.target.value)} />
-            <input type="text" placeholder="Enter Industry" value={consumerIndustry} onChange={(e) => setConsumerIndustry(e.target.value)} />
-            <input type="text" placeholder="Enter Full Address (e.g., 111 8th Ave, New York, NY)" value={address} onChange={(e) => setAddress(e.target.value)} />
-            <input type="number" placeholder="Enter CO₂ Demand (tonnes/week)" value={consumerDemand} onChange={(e) => setConsumerDemand(e.target.value)} />
-            <button type="submit" disabled={isLoading}>Register Consumer</button>
-          </form>
+    <div className="form-page">
+      <p className="eyebrow">Consumer onboarding</p>
+      <h1>List your CO₂ demand.</h1>
+      <p>Tell us your industry, location, and weekly need. We'll match you with producers that meet your purity bar.</p>
+
+      <form onSubmit={submit} className="form-stack">
+        <div className="field">
+          <label htmlFor="name">Company name</label>
+          <input id="name" className="input" type="text" value={form.name} onChange={update('name')} required autoFocus />
         </div>
-      </div>
-    </main>
+        <div className="field">
+          <label htmlFor="industry">Industry</label>
+          <select id="industry" className="select" value={form.industry} onChange={update('industry')}>
+            {INDUSTRIES.map((i) => <option key={i} value={i}>{i}</option>)}
+          </select>
+        </div>
+        <div className="field">
+          <label htmlFor="address">Address</label>
+          <input id="address" className="input" type="text" placeholder="111 8th Ave, New York, NY" value={form.address} onChange={update('address')} required />
+        </div>
+        <div className="field">
+          <label htmlFor="demand">Weekly CO₂ demand (tonnes)</label>
+          <input id="demand" className="input" type="number" min="1" value={form.demand} onChange={update('demand')} required />
+        </div>
+
+        {error && <p className="text-sm" style={{ color: 'var(--negative)' }}>{error}</p>}
+
+        <div className="actions">
+          <button type="submit" className="btn btn-primary" disabled={busy}>
+            {busy ? <span className="loading" /> : 'List my demand'}
+          </button>
+          <button type="button" className="btn btn-quiet" onClick={() => navigate(-1)}>Cancel</button>
+        </div>
+      </form>
+    </div>
   );
 }
 

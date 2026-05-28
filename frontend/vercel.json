@@ -1,0 +1,18 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_API_BASE_URL": "https://carbonflow-production.up.railway.app",
+    "VITE_APP_TITLE": "CarbonCapture Marketplace",
+    "VITE_ENVIRONMENT": "production"
+  },
+  "build": {
+    "env": {
+      "VITE_API_BASE_URL": "https://carbonflow-production.up.railway.app"
+    }
+  }
+} 

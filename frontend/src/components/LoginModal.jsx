@@ -1,138 +1,70 @@
-import React, { useState } from 'react';
-import { FiX, FiEye, FiEyeOff } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
 
-function LoginModal({ isOpen, onClose, onLogin, onRegister }) {
-  const [isLoginMode, setIsLoginMode] = useState(true);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: ''
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+function LoginModal({ onClose, onLogin, onRegister }) {
+  const [mode, setMode] = useState('signin');
+  const [form, setForm] = useState({ email: '', password: '', name: '' });
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-    setError(''); // Clear error when user types
-  };
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
+    setBusy(true); setError('');
     try {
-      if (isLoginMode) {
-        await onLogin(formData.email, formData.password);
-      } else {
-        await onRegister(formData.email, formData.password, formData.name);
-      }
-      onClose();
-    } catch (error) {
-      setError(error.message || 'Authentication failed');
+      if (mode === 'signin') await onLogin(form.email, form.password);
+      else await onRegister(form.email, form.password, form.name);
+    } catch (err) {
+      setError(err.message || 'Authentication failed');
     } finally {
-      setIsLoading(false);
+      setBusy(false);
     }
   };
 
-  const toggleMode = () => {
-    setIsLoginMode(!isLoginMode);
-    setFormData({ email: '', password: '', name: '' });
-    setError('');
-  };
-
-  if (!isOpen) return null;
+  const update = (k) => (e) => { setForm({ ...form, [k]: e.target.value }); setError(''); };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content login-modal">
-        <div className="modal-header">
-          <h2>{isLoginMode ? 'Welcome Back' : 'Create Account'}</h2>
-          <button onClick={onClose} className="close-btn">
-            <FiX size={24} />
-          </button>
-        </div>
+    <div className="scrim" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose} aria-label="Close">×</button>
+        <p className="eyebrow mb-2">{mode === 'signin' ? 'Sign in' : 'Create account'}</p>
+        <h2>{mode === 'signin' ? 'Welcome back' : 'Get started'}</h2>
+        <p>{mode === 'signin' ? 'Sign in to continue to your dashboard.' : 'Create an account to save matches and track impact.'}</p>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          {error && <div className="error-message">{error}</div>}
-          
-          {!isLoginMode && (
-            <div className="form-group">
-              <label htmlFor="name">Full Name</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                placeholder="Enter your full name"
-              />
+        <form onSubmit={submit} className="form-stack">
+          {mode === 'signup' && (
+            <div className="field">
+              <label htmlFor="name">Name</label>
+              <input id="name" className="input" type="text" value={form.name} onChange={update('name')} required autoFocus />
             </div>
           )}
-
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              placeholder="Enter your email"
-            />
+          <div className="field">
+            <label htmlFor="email">Email</label>
+            <input id="email" className="input" type="email" value={form.email} onChange={update('email')} required autoFocus={mode === 'signin'} />
           </div>
-
-          <div className="form-group">
+          <div className="field">
             <label htmlFor="password">Password</label>
-            <div className="password-input">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                placeholder="Enter your password"
-                minLength="6"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="password-toggle"
-              >
-                {showPassword ? <FiEyeOff /> : <FiEye />}
-              </button>
-            </div>
+            <input id="password" className="input" type="password" value={form.password} onChange={update('password')} required minLength={6} />
           </div>
 
-          <button type="submit" disabled={isLoading} className="submit-btn">
-            {isLoading ? 'Please wait...' : (isLoginMode ? 'Sign In' : 'Create Account')}
-          </button>
-        </form>
+          {error && <p className="text-sm" style={{ color: 'var(--negative)' }}>{error}</p>}
 
-        <div className="auth-footer">
-          <p>
-            {isLoginMode ? "Don't have an account? " : "Already have an account? "}
-            <button onClick={toggleMode} className="toggle-mode-btn">
-              {isLoginMode ? 'Sign Up' : 'Sign In'}
+          <div className="actions">
+            <button type="submit" className="btn btn-primary" disabled={busy}>
+              {busy ? <span className="loading" /> : (mode === 'signin' ? 'Sign in' : 'Create account')}
             </button>
-          </p>
-          
-          <div className="demo-credentials">
-            <p><strong>Demo Credentials:</strong></p>
-            <p>Email: demo@carboncapture.com</p>
-            <p>Password: demo123</p>
+            <button type="button" className="btn btn-quiet" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); }}>
+              {mode === 'signin' ? 'Need an account?' : 'Have an account?'}
+            </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
 }
 
-export default LoginModal; 
+export default LoginModal;

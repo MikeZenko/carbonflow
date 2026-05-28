@@ -1,209 +1,95 @@
 import React, { useEffect, useState } from 'react';
-import { FiTrendingUp, FiActivity, FiBarChart, FiUsers, FiMap } from 'react-icons/fi';
-import { FaLeaf, FaIndustry, FaGlobeAmericas } from 'react-icons/fa';
-import { getMatchingStats } from '../api';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://carbonflow-production.up.railway.app';
 
 function AnalyticsPage() {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [timeRange, setTimeRange] = useState('7d');
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [err, setErr] = useState(null);
 
   useEffect(() => {
-    localStorage.setItem('carbonflow_analytics_tab', activeTab);
-  }, [activeTab]);
-
-  useEffect(() => {
-    localStorage.setItem('carbonflow_analytics_timerange', timeRange);
-  }, [timeRange]);
-
-  useEffect(() => {
-    const loadStats = async () => {
-      setLoading(true);
-      setError('');
+    let cancelled = false;
+    (async () => {
       try {
-        const data = await getMatchingStats();
-        setStats(data);
-      } catch (err) {
-        setError(err.message || 'Error fetching analytics data');
+        const r = await fetch(`${API_BASE}/api/matching-stats`);
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const data = await r.json();
+        if (!cancelled) setStats(data);
+      } catch (e) {
+        if (!cancelled) setErr(e.message);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
-    };
-    loadStats();
-  }, [timeRange]);
-
-  const StatCard = ({ icon, title, value, color }) => (
-    <div className="analytics-stat-card">
-      <div className="stat-icon" style={{ color }}>{icon}</div>
-      <div className="stat-content">
-        <h3>{title}</h3>
-        <div className="stat-value">{value}</div>
-      </div>
-    </div>
-  );
-
-  const weightEntries = stats?.weights
-    ? Object.entries(stats.weights).map(([key, value]) => ({
-        label: key.replace(/_/g, ' '),
-        value: Math.round(value * 100),
-      }))
-    : [];
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
-    <div className="analytics-page">
-      <div className="analytics-header">
-        <div className="page-title">
-          <FiActivity className="page-icon" />
-          <h1>Analytics Dashboard</h1>
-        </div>
-        <div className="analytics-controls">
-          <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-            className="time-range-select"
-          >
-            <option value="24h">Last 24 Hours</option>
-            <option value="7d">Last 7 Days</option>
-            <option value="30d">Last 30 Days</option>
-            <option value="90d">Last 90 Days</option>
-          </select>
-        </div>
-      </div>
+    <div className="container" style={{ padding: 'var(--s-16) var(--s-6)' }}>
+      <p className="eyebrow mb-3">System</p>
+      <h1 className="mb-2" style={{ fontSize: 'var(--text-3xl)', letterSpacing: '-0.02em' }}>Matching engine</h1>
+      <p className="mb-8 text-muted" style={{ maxWidth: '60ch' }}>
+        Live state of the vector index and scoring pipeline. These numbers are recomputed on every page load —
+        no caching, no stale telemetry.
+      </p>
 
-      <div className="analytics-tabs">
-        <button
-          className={`analytics-tab ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          <FiBarChart /> Overview
-        </button>
-        <button
-          className={`analytics-tab ${activeTab === 'matches' ? 'active' : ''}`}
-          onClick={() => setActiveTab('matches')}
-        >
-          <FiUsers /> Matches
-        </button>
-        <button
-          className={`analytics-tab ${activeTab === 'vector' ? 'active' : ''}`}
-          onClick={() => setActiveTab('vector')}
-        >
-          <FiTrendingUp /> Vector Engine
-        </button>
-        <button
-          className={`analytics-tab ${activeTab === 'geography' ? 'active' : ''}`}
-          onClick={() => setActiveTab('geography')}
-        >
-          <FiMap /> Geography
-        </button>
-      </div>
+      {loading && <div className="loading">Loading stats…</div>}
+      {err && <p style={{ color: 'var(--negative)' }}>Failed to load stats: {err}</p>}
 
-      <div className="analytics-content">
-        {loading && <p>Loading analytics data...</p>}
-        {error && <p className="form-error">{error}</p>}
-
-        {!loading && !error && stats && activeTab === 'overview' && (
-          <div className="overview-tab">
-            <div className="stats-grid">
-              <StatCard
-                icon={<FiUsers />}
-                title="Total Producers"
-                value={stats.total_producers}
-                color="var(--primary-color)"
-              />
-              <StatCard
-                icon={<FaIndustry />}
-                title="Active Consumers"
-                value={stats.total_consumers}
-                color="#3b82f6"
-              />
-              <StatCard
-                icon={<FaLeaf />}
-                title="Avg Matches/Producer"
-                value={stats.avg_matches_per_producer}
-                color="#10b981"
-              />
-              <StatCard
-                icon={<FiTrendingUp />}
-                title="AI Matching Accuracy"
-                value="Enhanced"
-                color="#059669"
-              />
+      {stats && (
+        <>
+          <div className="stat-grid mb-12">
+            <div className="stat-cell">
+              <span className="label">Producers indexed</span>
+              <span className="value num">{stats.total_producers ?? 0}</span>
             </div>
-            <p className="analytics-note">Enhanced AI matching algorithm is now live</p>
-          </div>
-        )}
-
-        {!loading && !error && stats && activeTab === 'matches' && (
-          <div className="matches-tab">
-            <div className="matches-stats">
-              <div className="match-success-rate">
-                <h3>Matching Algorithm</h3>
-                <p>Advanced vector similarity analysis with capacity, distance, and quality scoring.</p>
-              </div>
+            <div className="stat-cell">
+              <span className="label">Consumers indexed</span>
+              <span className="value num">{stats.total_consumers ?? 0}</span>
             </div>
-            <div className="industry-breakdown">
-              <h3>Algorithm Weights</h3>
-              <div className="industry-chart">
-                {weightEntries.map((item, index) => (
-                  <div key={item.label} className="chart-bar-container">
-                    <div className="chart-bar-label">{item.label}</div>
-                    <div className="chart-bar-track">
-                      <div
-                        className="chart-bar-fill"
-                        style={{
-                          width: `${item.value}%`,
-                          backgroundColor: `hsl(${index * 60}, 70%, 50%)`,
-                        }}
-                      />
-                    </div>
-                    <div className="chart-bar-value">{item.value}%</div>
-                  </div>
-                ))}
-              </div>
+            <div className="stat-cell">
+              <span className="label">Avg matches / producer</span>
+              <span className="value num">{(stats.avg_matches_per_producer ?? 0).toFixed(2)}</span>
+            </div>
+            <div className="stat-cell">
+              <span className="label">Producer vector dims</span>
+              <span className="value num">{stats.vector_engine_stats?.vector_dimensions?.producer ?? '–'}</span>
             </div>
           </div>
-        )}
 
-        {!loading && !error && stats && activeTab === 'vector' && (
-          <div className="vector-architecture-section">
-            <h3>Vector Architecture</h3>
-            <p>Real-time vector processing and compatibility scoring across the marketplace.</p>
-            <div className="architecture-breakdown">
-              <div className="vector-type producer-vectors">
-                <h4>Producer Vectors</h4>
-                <div className="vector-count">
-                  {stats.vector_engine_stats?.producer_vectors ?? 0} vectors
-                </div>
-                <p>{stats.vector_engine_stats?.vector_dimensions?.producer ?? 32} dimensions</p>
-              </div>
-              <div className="vector-type consumer-vectors">
-                <h4>Consumer Vectors</h4>
-                <div className="vector-count">
-                  {stats.vector_engine_stats?.consumer_vectors ?? 0} vectors
-                </div>
-                <p>{stats.vector_engine_stats?.vector_dimensions?.consumer ?? 28} dimensions</p>
-              </div>
-            </div>
-            <p className="analytics-footer">
-              Generated by CarbonFlow Analytics • {new Date().toLocaleDateString()}
-            </p>
+          <p className="eyebrow mb-4">Scoring weights</p>
+          <div className="card mb-12" style={{ padding: 0, overflow: 'hidden' }}>
+            <dl className="kv" style={{ padding: 'var(--s-6)', margin: 0 }}>
+              {Object.entries(stats.weights || {}).map(([k, v]) => (
+                <React.Fragment key={k}>
+                  <dt>{prettify(k)}</dt>
+                  <dd>{(Number(v) * 100).toFixed(0)}%</dd>
+                </React.Fragment>
+              ))}
+            </dl>
           </div>
-        )}
 
-        {activeTab === 'geography' && (
-          <div className="geography-tab">
-            <div className="geo-placeholder">
-              <FaGlobeAmericas className="geo-icon" />
-              <h3>Geographic Analytics</h3>
-              <p>Producer and consumer coverage across North America.</p>
-            </div>
+          <p className="eyebrow mb-4">Vector index</p>
+          <div className="card">
+            <dl className="kv" style={{ margin: 0 }}>
+              <dt>Producer vectors cached</dt>
+              <dd>{stats.vector_engine_stats?.producer_vectors ?? '–'}</dd>
+              <dt>Consumer vectors cached</dt>
+              <dd>{stats.vector_engine_stats?.consumer_vectors ?? '–'}</dd>
+              <dt>Producer vector dimensions</dt>
+              <dd>{stats.vector_engine_stats?.vector_dimensions?.producer ?? '–'}</dd>
+              <dt>Consumer vector dimensions</dt>
+              <dd>{stats.vector_engine_stats?.vector_dimensions?.consumer ?? '–'}</dd>
+            </dl>
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
+}
+
+function prettify(s) {
+  return s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export default AnalyticsPage;

@@ -85,12 +85,12 @@ function LandingPage() {
                 proximity — with the weights visible, not hidden behind an LLM.
               </p>
               <div className="hero-actions">
-                <Link to="/dashboard" className="btn btn-primary btn-lg">Open the dashboard</Link>
+                <Link to="/dashboard" className="btn btn-accent btn-lg">Open the dashboard</Link>
                 <Link to="/register-producer" className="btn btn-ghost btn-lg">List your supply</Link>
               </div>
             </div>
             <div className="hero-visual" aria-hidden="true">
-              <Globe markers={markers} size={520} />
+              <Globe markers={markers} />
             </div>
           </div>
         </div>

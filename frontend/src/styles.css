@@ -25,10 +25,13 @@
   --text-3: #807d75;
   --text-inverse: #faf9f5;
 
-  /* Accent — quiet moss; sustainability-coded without the eco-cliché */
-  --accent: #6e8267;
-  --accent-hover: #5c7156;
-  --accent-quiet: #e6ebe2;
+  /* Accent — juicy spring green. Used for fills, underlines, dots, bars,
+   * glows. Too bright to read as text on the cream bg, so green *text*
+   * uses --accent-ink instead. */
+  --accent: #0bda51;
+  --accent-hover: #0abf47;
+  --accent-ink: #0a8f38;     /* darker green, readable on light surfaces */
+  --accent-quiet: #d6f5e0;   /* pale green tint for backgrounds */
 
   /* Signal — iron oxide. Use sparingly: emphasis, deltas, warnings */
   --accent-2: #a8553e;
@@ -129,7 +132,7 @@ a {
   border-bottom: 1px solid var(--border-strong);
   transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-a:hover { border-bottom-color: var(--text); }
+a:hover { border-bottom-color: var(--accent); }
 
 button {
   font-family: inherit;
@@ -182,8 +185,9 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
 .eyebrow::before {
   content: "";
   width: 18px;
-  height: 1px;
-  background: var(--border-strong);
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
 }
 
 .divider {
@@ -245,7 +249,8 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
 
 .btn-accent {
   background: var(--accent);
-  color: #fff;
+  color: var(--text); /* ink on juicy green reads far better than white */
+  font-weight: 600;
 }
 .btn-accent:hover:not(:disabled) { background: var(--accent-hover); }
 
@@ -369,7 +374,7 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
   line-height: 1.4;
 }
 
-.tag-accent { color: var(--accent); background: var(--accent-quiet); border-color: transparent; }
+.tag-accent { color: var(--accent-ink); background: var(--accent-quiet); border-color: transparent; }
 
 .rank {
   display: inline-flex;
@@ -386,7 +391,7 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
   font-variant-numeric: tabular-nums;
   font-family: var(--font-mono);
 }
-.rank-1 { background: var(--accent); }
+.rank-1 { background: var(--accent); color: var(--text); }
 
 /* ---------- Header / nav ---------- */
 
@@ -448,7 +453,7 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
   transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
 }
 .nav-link:hover { color: var(--text); border: none; background: transparent; }
-.nav-link.is-active { color: var(--text); font-weight: 500; }
+.nav-link.is-active { color: var(--accent-ink); font-weight: 600; }
 
 .app-main { flex: 1; min-height: 0; }
 
@@ -488,13 +493,32 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
 }
 .hero-visual > * { position: relative; z-index: 1; }
 
+.ascii-globe {
+  font-family: var(--font-mono);
+  font-size: clamp(7px, 1.25vw, 11px);
+  line-height: 1;
+  letter-spacing: 0;
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  color: var(--text);
+  background: transparent;
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y;
+  font-weight: 500;
+  /* juicy green halo so the ink globe glows with the brand accent */
+  text-shadow: 0 0 2px rgba(11, 218, 81, 0.35);
+}
+.ascii-globe::selection { background: transparent; }
+
 @media (max-width: 900px) {
   .hero-grid {
     grid-template-columns: 1fr;
     gap: var(--s-12);
   }
   .hero-visual { justify-content: center; }
-  .hero-visual > div { max-width: 360px !important; }
+  .ascii-globe { font-size: clamp(7px, 2.2vw, 10px); }
 }
 
 .hero-headline {
@@ -508,23 +532,18 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
   font-variation-settings: "opsz" 144, "SOFT" 20;
 }
 
+/* Emphasis without the italic (which read as too much): upright text with
+ * a juicy green underline-swipe painted across the baseline. */
 .hero-headline em {
-  font-style: italic;
+  font-style: normal;
   color: var(--text);
-  font-weight: 400;
-  position: relative;
+  font-weight: 500;
   white-space: nowrap;
-}
-/* Hairline rule under the italicised phrase — feels like a margin note
- * in a technical document, not the AI-lab orange-highlight trope. */
-.hero-headline em::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -0.06em;
-  height: 1px;
-  background: var(--accent);
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 100% 0.1em;
+  background-position: 0 92%;
+  background-repeat: no-repeat;
+  padding-bottom: 0.04em;
 }
 
 .hero-lede {
@@ -619,13 +638,13 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
   border-bottom: 1px solid var(--border);
 }
 .role-card:hover {
-  border-color: var(--text);
+  border-color: var(--accent);
   background: var(--surface-2);
 }
 .role-card .eyebrow { margin-bottom: var(--s-3); }
 .role-card h3 { font-size: var(--text-xl); margin-bottom: var(--s-3); }
 .role-card p { margin-bottom: var(--s-6); }
-.role-card .arrow { color: var(--accent); font-weight: 500; }
+.role-card .arrow { color: var(--accent-ink); font-weight: 600; }
 
 .footer {
   border-top: 1px solid var(--border);

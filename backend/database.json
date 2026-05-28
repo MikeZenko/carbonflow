@@ -45,39 +45,6 @@
       "additional_info": "Food-grade CO\u2082 perfect for beverage industry"
     },
     {
-      "id": "prod_73b787d2-89eb-4465-b0c2-543ef7d490a1",
-      "name": "Texas Petro Solutions",
-      "location": {
-        "lat": 32.7767,
-        "lon": -96.797
-      },
-      "co2_supply_tonnes_per_week": 800,
-      "co2_output_tonnes_per_year": 41600,
-      "industry_type": "Petrochemical",
-      "co2_purity": 92,
-      "transportation_methods": [
-        "Pipeline",
-        "Tank Truck"
-      ],
-      "additional_info": "Large-scale industrial CO\u2082 with flexible logistics"
-    },
-    {
-      "id": "prod_39242437-f3e0-424a-a777-f35126ac56eb",
-      "name": "Orlando Small-Scale Ethanol",
-      "location": {
-        "lat": 28.5383,
-        "lon": -81.3792
-      },
-      "co2_supply_tonnes_per_week": 150,
-      "co2_output_tonnes_per_year": 7800,
-      "industry_type": "Ethanol Production",
-      "co2_purity": 98,
-      "transportation_methods": [
-        "Truck"
-      ],
-      "additional_info": "Small batches, perfect for local beverage companies"
-    },
-    {
       "id": "prod_9ad8b4e6-3fb5-4054-91ad-ea7ee3af2b59",
       "name": "Carlsbad Energy Center",
       "location": {

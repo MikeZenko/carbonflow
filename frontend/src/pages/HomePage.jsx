@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import MapView from '../components/MapView';
 import MatchesPanel from '../components/Sidebar';
 import ProducerList from '../components/ProducerList';
 import ImpactModal from '../components/ImpactModal';
-import { getMatches, getImpactReport } from '../api';
+import { getMatches, getMatchSummary, getImpactReport } from '../api';
 import {
   cacheReport, getCachedReport,
   cacheAnalysisReport, getCachedAnalysisReport,
@@ -17,6 +17,7 @@ function HomePage() {
   const [impactReport, setImpactReport] = useState(null);
   const [watchlist, setWatchlist] = useState([]);
   const [error, setError] = useState(null);
+  const reqRef = useRef(0); // guards against a stale async summary landing late
 
   useEffect(() => {
     const saved = localStorage.getItem('carbonWatchlist');
@@ -64,25 +65,40 @@ function HomePage() {
 
     setIsLoading(true);
     setAnalysisReport(null);
+    const reqId = ++reqRef.current;
     try {
-      // /api/matches already returns ranked matches with a full score
-      // breakdown in ~80ms. We surface that directly — no slow per-match
-      // LLM pass, which is also exactly the "no black box" pitch.
+      // /api/matches returns fully-ranked matches with a score breakdown in
+      // ~80ms, so the list shows instantly. The brief AI summary is fetched
+      // separately and folded in when it lands — it never blocks the matches.
       const matches = await getMatches(producer.id);
-      const report = {
-        ranked_matches: matches || [],
-        overall_summary: matches && matches.length
+      if (reqRef.current !== reqId) return; // superseded by a newer selection
+
+      const base = {
+        ranked_matches: matches,
+        overall_summary: matches.length
           ? `${matches.length} viable partner${matches.length === 1 ? '' : 's'} for ${producer.name}, ranked by capacity fit, proximity, and CO₂ purity.`
           : 'No viable matches in range.',
       };
-      cacheAnalysisReport(producer, report);
+      cacheAnalysisReport(producer, base);
       localStorage.setItem('carbonflow_last_producer', JSON.stringify(producer));
-      setAnalysisReport(report);
+      setAnalysisReport(base);
+
+      if (matches.length) {
+        getMatchSummary(producer, matches)
+          .then(({ summary }) => {
+            if (reqRef.current !== reqId || !summary) return;
+            const upgraded = { ...base, overall_summary: summary };
+            cacheAnalysisReport(producer, upgraded);
+            setAnalysisReport(upgraded);
+          })
+          .catch(() => {}); // keep the deterministic summary if AI is slow/down
+      }
     } catch (e) {
+      if (reqRef.current !== reqId) return;
       setError(e.message);
       setAnalysisReport({ ranked_matches: [], overall_summary: `Couldn't load matches: ${e.message}` });
     } finally {
-      setIsLoading(false);
+      if (reqRef.current === reqId) setIsLoading(false);
     }
   };
 

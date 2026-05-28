@@ -575,6 +575,56 @@ def analyze_matches():
 
     return jsonify(final_report)
 
+@app.route('/api/match-summary', methods=['POST'])
+def match_summary():
+    """One brief AI sentence summarizing a producer's match landscape.
+
+    A single model call (fast) rather than the per-match analysis loop,
+    with a deterministic fallback when AI is unavailable or fails.
+    """
+    data = request.get_json() or {}
+    producer = data.get('producer') or {}
+    matches = data.get('matches') or []
+    name = producer.get('name', 'this producer')
+    n = len(matches)
+
+    if n:
+        fallback = (
+            f"{n} viable partner{'s' if n != 1 else ''} for {name}, "
+            "ranked by capacity fit, proximity, and CO₂ purity."
+        )
+    else:
+        fallback = f"No viable matches in range for {name}."
+
+    if client is None or n == 0:
+        return jsonify({"summary": fallback})
+
+    try:
+        lines = "\n".join(
+            f"- {m.get('name')} ({m.get('industry')}): score "
+            f"{round(float(m.get('match_score', 0)) * 100)}%, {m.get('distance_km')} km"
+            for m in matches[:6]
+        )
+        prompt = (
+            f'CO2 producer "{name}" has these ranked offtake matches:\n{lines}\n\n'
+            "In ONE sentence (max 28 words), summarize the opportunity for a "
+            "sustainability analyst — name the strongest match and why. No preamble."
+        )
+        resp = client.chat.completions.create(
+            model=AZURE_OPENAI_DEPLOYMENT_NAME,
+            messages=[
+                {"role": "system", "content": "You write terse, factual one-line summaries."},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.4,
+            max_tokens=80,
+        )
+        text = (resp.choices[0].message.content or "").strip()
+        return jsonify({"summary": text or fallback})
+    except Exception as e:
+        print(f"match-summary failed: {e}")
+        return jsonify({"summary": fallback})
+
 @app.route('/api/rebuild-vectors', methods=['POST'])
 def rebuild_vectors():
     """Rebuild all vectors from current database data"""

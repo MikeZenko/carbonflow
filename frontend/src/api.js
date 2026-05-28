@@ -80,7 +80,21 @@ export const getMatches = async (producerId) => {
   const response = await fetchWithTimeout(
     `${API_BASE_URL}/api/matches?producer_id=${encodeURIComponent(producerId)}`
   );
+  // A producer with no viable matches returns 404 — treat that as an
+  // empty result, not an error, so the UI shows a clean "no matches" state.
+  if (response.status === 404) return [];
   return handleResponse(response, 'Failed to fetch matches');
+};
+
+// One brief AI sentence about a producer's match landscape. Fast (single
+// model call) with a deterministic server-side fallback.
+export const getMatchSummary = async (producer, matches) => {
+  const response = await fetchWithTimeout(`${API_BASE_URL}/api/match-summary`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ producer, matches }),
+  });
+  return handleResponse(response, 'Failed to summarize matches');
 };
 
 export const getImpactReport = async (producer, consumer) => {

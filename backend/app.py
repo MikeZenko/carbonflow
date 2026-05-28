@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import re
 import time
 import uuid
 from collections import defaultdict
@@ -70,9 +71,15 @@ else:
 # --- Flask App Initialization ---
 app = Flask(__name__)
 
-# CORS: explicit allowlist via env var. Defaults to local-dev origins so a
-# misconfigured production deploy does not silently become wide-open.
-_default_dev_origins = [
+# CORS: explicit allowlist via env var (CORS_ORIGINS, comma-separated).
+# When unset, default to the known production domains, any Vercel
+# deployment, and local dev — so a fresh deploy works without extra config
+# while still being an allowlist, not wide-open. Auth uses Bearer tokens
+# (not cookies), so echoing a matched origin is safe here.
+_default_origins = [
+    "https://carbonflow.net",
+    "https://www.carbonflow.net",
+    re.compile(r"^https://[a-z0-9-]+\.vercel\.app$"),
     "http://localhost:3000",
     "http://localhost:5173",
     "http://127.0.0.1:3000",
@@ -81,11 +88,8 @@ _cors_origins_env = os.getenv("CORS_ORIGINS", "").strip()
 if _cors_origins_env:
     _allowed_origins = [o.strip() for o in _cors_origins_env.split(",") if o.strip()]
 else:
-    _allowed_origins = _default_dev_origins
-    print(
-        "CORS_ORIGINS not set — falling back to local-dev origins. "
-        "Set CORS_ORIGINS in production."
-    )
+    _allowed_origins = _default_origins
+    print("CORS_ORIGINS not set — using default production + dev allowlist.")
 CORS(app, origins=_allowed_origins, supports_credentials=True)
 
 # JWT secret: fail-closed. Local development can opt in to an insecure key

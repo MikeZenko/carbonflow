@@ -25,13 +25,13 @@
   --text-3: #807d75;
   --text-inverse: #faf9f5;
 
-  /* Accent — juicy spring green. Used for fills, underlines, dots, bars,
-   * glows. Too bright to read as text on the cream bg, so green *text*
+  /* Accent — lime / leaf green. Used for fills, underlines, dots, bars,
+   * glows. Too light to read as text on the cream bg, so green *text*
    * uses --accent-ink instead. */
-  --accent: #0bda51;
-  --accent-hover: #0abf47;
-  --accent-ink: #0a8f38;     /* darker green, readable on light surfaces */
-  --accent-quiet: #d6f5e0;   /* pale green tint for backgrounds */
+  --accent: #67bd04;
+  --accent-hover: #5aa803;
+  --accent-ink: #4e8a00;     /* darker green, readable on light surfaces */
+  --accent-quiet: #e9f4d6;   /* pale green tint for backgrounds */
 
   /* Signal — iron oxide. Use sparingly: emphasis, deltas, warnings */
   --accent-2: #a8553e;
@@ -507,8 +507,8 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
   user-select: none;
   touch-action: pan-y;
   font-weight: 500;
-  /* juicy green halo so the ink globe glows with the brand accent */
-  text-shadow: 0 0 2px rgba(11, 218, 81, 0.35);
+  /* green halo so the ink globe glows with the brand accent */
+  text-shadow: 0 0 2px rgba(103, 189, 4, 0.35);
 }
 .ascii-globe::selection { background: transparent; }
 

@@ -780,6 +780,9 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
 .map-pane {
   position: relative;
   min-height: 0;
+  /* Contain Leaflet's internal z-indexes (panes/controls go up to ~1000)
+   * so they can't paint over the impact drawer / modals. */
+  isolation: isolate;
 }
 .map-pane .leaflet-container {
   background: var(--bg);
@@ -880,7 +883,7 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
   position: fixed;
   inset: 0;
   background: rgba(26, 26, 26, 0.4);
-  z-index: 100;
+  z-index: 1200;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -926,7 +929,7 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
   width: min(560px, 100vw);
   background: var(--surface-2);
   border-left: 1px solid var(--border);
-  z-index: 101;
+  z-index: 1201;
   overflow-y: auto;
   animation: slideIn var(--dur) var(--ease);
 }
